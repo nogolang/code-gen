@@ -11,7 +11,7 @@ import (
 func ReadConfig() {
 	isExists := utils.IsDev()
 	dir, _ := os.Getwd()
-	log.Println("当前工作目录：", dir)
+	log.Println("当前路径：", dir)
 	if isExists {
 		log.Println("====当前是开发环境====")
 		viper.SetConfigFile(dir + "/config/config.dev.yaml")

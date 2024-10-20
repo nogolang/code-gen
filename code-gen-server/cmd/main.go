@@ -1,7 +1,7 @@
 package main
 
 import (
-	"code-gen/cmd/config"
+	"code-gen/config"
 )
 
 func main() {
