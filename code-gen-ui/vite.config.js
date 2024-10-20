@@ -29,13 +29,13 @@ export default defineConfig({
     }
   },
   server:{
-    port:5173,
+    port:5088,
 
     //动态代理
     proxy:{
       '^/api':{
         //目标地址，这里应该填写网关地址，axios的baseUrl直接写一个/api就好了
-        target:'http://127.0.0.1:8001',
+        target:'http://127.0.0.1:8088',
 
         //允许跨域,也就是是否欺骗后台
         changeOrigin:true,

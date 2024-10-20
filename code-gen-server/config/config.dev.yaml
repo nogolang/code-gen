@@ -1,6 +1,6 @@
 zap:
   level: info
 http:
-  port: 8001
+  port: 8088
 gorm:
   url: "root:root@tcp(192.168.80.128:3306)/myGenCode?charset=utf8&parseTime=True&loc=Local"
