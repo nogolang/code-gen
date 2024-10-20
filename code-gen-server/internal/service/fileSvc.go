@@ -37,7 +37,7 @@ func (receiver *FileService) UpdateById(id int, request *model.FileModel) error 
 	old.NameSuffix = request.NameSuffix
 	old.FileSuffix = request.FileSuffix
 	old.MappingId = request.MappingId
-	request.TemplatePath = genUtils.WindowsPathToLinux(request.TemplatePath)
+	old.TemplatePath = genUtils.WindowsPathToLinux(request.TemplatePath)
 	err = receiver.Dao.UpdateById(id, old)
 	if err != nil {
 		return err

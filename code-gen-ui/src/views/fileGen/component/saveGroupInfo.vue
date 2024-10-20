@@ -90,18 +90,22 @@ const confirmAddFile=async ()=>{
   let fileAndGroup={
     fileId:0,
     outDir:"",
+    groupId:Id.value,
 
     //templateName不是数据库字段，仅仅是展示的
     templateName:"",
-  }
+    fileInfo:{
+      templatePathIsExist:false
+    }
 
-  console.log(fileSelectValue.value)
+  }
   if (fileSelectValue.value!==0&& fileSelectValue.value!==""){
     //根据fileId查询file信息
     let res=await fileApi.FindById(fileSelectValue.value)
     //只保留文件名称
     let endIndex = res.data.templatePath.lastIndexOf('/');
     fileAndGroup.templateName=res.data.templatePath.substring(endIndex+1)
+    fileAndGroup.fileInfo.templatePathIsExist=res.data.templatePathIsExist
 
     //赋值id
     fileAndGroup.fileId=res.data.id

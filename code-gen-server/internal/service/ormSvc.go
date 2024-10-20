@@ -8,8 +8,9 @@ import (
 )
 
 type OrmSvc struct {
-	Logger *zap.Logger
-	Dao    *dao.OrmDao
+	Logger     *zap.Logger
+	Dao        *dao.OrmDao
+	FileGenDao *dao.FileGenDao
 }
 
 func (receiver *OrmSvc) Add(groupModel *model.OrmModel) error {
@@ -21,6 +22,12 @@ func (receiver *OrmSvc) FindById(id int) (*model.OrmModel, error) {
 }
 
 func (receiver *OrmSvc) DeleteById(id int) error {
+	//把fileGen里的dataSources id置0
+	err := receiver.FileGenDao.SetZeroIdWithDatabaseId(id)
+	if err != nil {
+		return err
+	}
+
 	return receiver.Dao.DeleteById(id)
 }
 

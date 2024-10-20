@@ -18,6 +18,7 @@ type GroupSvc struct {
 	MappingDao      *dao.MappingPathDao
 	OrmDao          *dao.OrmDao
 	FileAndGroupDao *dao.FileAndGroupDao
+	FileGenDao      *dao.FileGenDao
 }
 
 // 添加组的同时，需要填充fileAndgroup的id信息
@@ -85,16 +86,31 @@ func (receiver *GroupSvc) DeleteById(id int) error {
 	if err != nil {
 		return err
 	}
+
+	//把fileGen里的group id置0
+	err = receiver.FileGenDao.SetZeroIdWithGroupId(id)
+	if err != nil {
+		return err
+	}
+
 	return receiver.Dao.DeleteById(id)
 }
 
 // 更新组的时候，同时更新文件目录信息
 func (receiver *GroupSvc) UpdateById(id int, m *model.GroupModel) error {
 	for _, fileAndGroup := range m.FileAndGroups {
-		//根据FileAndGroup自己的id更新
-		err := receiver.FileAndGroupDao.UpdateById(fileAndGroup.Id, fileAndGroup)
-		if err != nil {
-			return err
+		//如果fileAndGroup的id是0，代表是新增，不是更新
+		if fileAndGroup.Id == 0 {
+			err := receiver.FileAndGroupDao.Add(fileAndGroup)
+			if err != nil {
+				return err
+			}
+		} else {
+			//根据FileAndGroup自己的id更新
+			err := receiver.FileAndGroupDao.UpdateById(fileAndGroup.Id, fileAndGroup)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	m.RootDir = genUtils.WindowsPathToLinux(m.RootDir)

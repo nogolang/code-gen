@@ -25,6 +25,8 @@ type FileGenSvc struct {
 func (receiver *FileGenSvc) Add(m *model.FileGenModelRequest) error {
 	var fileModel model.FileGenModel
 	err := copier.Copy(&fileModel, m)
+	//处理表名，扁平化
+	fileModel.TableNames = strings.Join(m.TableNamesArr, ",")
 	if err != nil {
 		return errors.Wrap(err, "新增'生成配置'数据复制出错")
 	}
@@ -74,13 +76,19 @@ func (receiver *FileGenSvc) FindAll(query *model.FileGenModelQuery) (*model.File
 
 	//获取到数据库名
 	for _, d := range data {
-		dbModel, _ := receiver.OrmDao.FindById(d.DataBaseId)
+		dbModel, err := receiver.OrmDao.FindById(d.DataBaseId)
+		//如果没有对应的配置源，则下面会出错，如果我们删除了配置源
+		//那么应该给本表对应的datasourceID置空
+		if err != nil {
+			return nil, err
+		}
 		d.DatabaseName = dbModel.Describe + "/" + dbModel.DataBaseName
 		d.TableNamesArr = strings.Split(d.TableNames, ",")
 	}
 
 	//获取到组的describe
 	for _, d := range data {
+		//如果把组删除掉了，那么本表的groupID也应该置空
 		groupModel, _ := receiver.GroupDao.FindById(d.GroupId)
 		d.GroupDescribe = groupModel.Describe
 	}

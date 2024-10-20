@@ -69,7 +69,7 @@ func (d *OrmDao) FindById(id int) (*model.OrmModel, error) {
 	var obj model.OrmModel
 	tx := d.Db.Find(&obj, id)
 	if tx.Error != nil {
-		return nil, errors.Wrap(tx.Error, "根据id查询组出错")
+		return nil, errors.Wrap(tx.Error, "根据id查询orm出错")
 	}
 	if tx.RowsAffected == 0 {
 		return nil, commonRes.GroupNotFount

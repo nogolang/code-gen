@@ -16,7 +16,15 @@ type FileAndGroupDao struct {
 func (d *FileAndGroupDao) AddBatch(m []*model.FileAndGroupModel) error {
 	tx := d.Db.Create(m)
 	if tx.Error != nil {
-		return errors.Wrap(tx.Error, "添加文件组出错")
+		return errors.Wrap(tx.Error, "添加文件和组出错")
+	}
+	return nil
+}
+
+func (d *FileAndGroupDao) Add(group *model.FileAndGroupModel) error {
+	tx := d.Db.Create(group)
+	if tx.Error != nil {
+		return errors.Wrap(tx.Error, "添加文件和组出错")
 	}
 	return nil
 }

@@ -70,3 +70,21 @@ func (receiver *FileGenDao) FindAll(query *model.FileGenModelQuery) ([]*model.Fi
 	}
 	return files, total, nil
 }
+
+// 根据组id把本表的组id设为0
+func (receiver *FileGenDao) SetZeroIdWithGroupId(id int) error {
+	tx := receiver.Db.Where("group_id = ?", id).Update("group_id", 0)
+	if tx.Error != nil {
+		return errors.Wrap(tx.Error, "设置group_id为0出错")
+	}
+	return nil
+}
+
+// 根据DatabaseId把本表的DatabaseId设为0
+func (receiver *FileGenDao) SetZeroIdWithDatabaseId(id int) error {
+	tx := receiver.Db.Where("database_id = ?", id).Update("database_id", 0)
+	if tx.Error != nil {
+		return errors.Wrap(tx.Error, "设置database_id为0出错")
+	}
+	return nil
+}
