@@ -76,7 +76,7 @@ func getLogWriter() zapcore.WriteSyncer {
 	//如果是开发环境，向控制台输出，生产环境应该向文件输出
 	//文件则向lumber输出，由lumber切割
 	var writer io.Writer
-	if isDev := viper.GetBool("isDev"); isDev {
+	if isDev := utils.IsDev(); isDev {
 		writer = os.Stdout
 	} else {
 		writer = lumberJackConfig()
