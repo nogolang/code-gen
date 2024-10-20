@@ -1,30 +1,35 @@
 package genCode
 
 import (
+	"github.com/duke-git/lancet/v2/strutil"
 	"gorm.io/gorm"
 	"strings"
 )
 
 type Table struct {
-	DB           *gorm.DB
-	TableName    string  //表名
-	TableComment string  //表的注解
-	DataBaseName string  //表所在的数据库名称
-	Fields       []field //表的字段
+	DB                    *gorm.DB
+	TableName             string  //表名
+	TableNameWithBigCamel string  //表名    string  //表名
+	TableComment          string  //表的注解
+	DataBaseName          string  //表所在的数据库名称
+	Fields                []field //表的字段
 }
 
 // Field代表数据库的字段名称和类型
 type field struct {
-	FieldName    string
-	FieldType    string
-	FieldComment string //字段的注解
+	FieldName               string //原始字段名，从规则上来说应该设计为蛇形命名
+	FieldNameWithBigCamel   string //大驼峰字段名,UserInfo
+	FieldNameWithSmallCamel string //小驼峰字段名,userInfo
+	FieldType               string //字段类型
+	FieldComment            string //字段的注解
 }
 
 func NewTable(dataBaseName string, tableName string, db *gorm.DB) *Table {
 	return &Table{
-		TableName:    tableName,
-		DataBaseName: dataBaseName,
-		DB:           db,
+		TableName:             tableName,
+		TableNameWithBigCamel: strutil.UpperFirst(strutil.CamelCase(tableName)),
+		DataBaseName:          dataBaseName,
+		DB:                    db,
 	}
 }
 
@@ -82,6 +87,12 @@ func (receiver *Table) fillFields(mapping map[string]string) {
 			//如果没有找到，那么直接通过映射获取到映射类型即可
 			fieldTemp.FieldType = mapping[fieldTemp.FieldType]
 		}
+
+		//小驼峰，
+		fieldTemp.FieldNameWithSmallCamel = strutil.CamelCase(fieldTemp.FieldName)
+
+		//大驼峰
+		fieldTemp.FieldNameWithBigCamel = strutil.UpperFirst(strutil.CamelCase(fieldTemp.FieldName))
 
 		myFields = append(myFields, fieldTemp)
 
