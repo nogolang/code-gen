@@ -1,6 +1,6 @@
 import request from "@/api/index.js";
 
-
+//1233
 export const FindTablesByDatabaseId=(databaseId)=> {
 	return request.get("/database/findTablesByDatabaseId/"+databaseId)
 }
