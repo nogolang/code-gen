@@ -1,0 +1,45 @@
+
+
+//文字溢出省略号
+.text-ellipsis{
+  //超出部分隐藏
+  overflow:hidden;
+
+  //默认是normal,也就是会自动换行,
+  //nowrap表示文字在盒子里显示不了则自动换行
+  white-space:nowrap;
+
+  //文字用省略号代替超出的部分
+  text-overflow:ellipsis;
+}
+
+
+/*清除浮动*/
+.clearfix:after{
+  content:"";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+.clearfix{
+  /* 兼容ie6,7*/
+  *zoom:1;
+}
+
+
+//我的常用颜色
+.my_red{
+  color: red;
+}
+.my_blue{
+  color: blue;
+}
+
+//左浮动
+.my_float_left{
+  float:left
+}
+
+
+

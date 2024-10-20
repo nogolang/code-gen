@@ -1,0 +1,90 @@
+package genCode
+
+import (
+	"gorm.io/gorm"
+	"strings"
+)
+
+type Table struct {
+	DB           *gorm.DB
+	TableName    string  //表名
+	TableComment string  //表的注解
+	DataBaseName string  //表所在的数据库名称
+	Fields       []field //表的字段
+}
+
+// Field代表数据库的字段名称和类型
+type field struct {
+	FieldName    string
+	FieldType    string
+	FieldComment string //字段的注解
+}
+
+func NewTable(dataBaseName string, tableName string, db *gorm.DB) *Table {
+	return &Table{
+		TableName:    tableName,
+		DataBaseName: dataBaseName,
+		DB:           db,
+	}
+}
+
+func (receiver *Table) GetTable(resolveMap map[string]string) *Table {
+	//获取表的注解
+	receiver.fillTableComment()
+
+	//获取字段的信息
+	receiver.fillFields(resolveMap)
+	return receiver
+}
+
+// 单独获取表的注解
+func (receiver *Table) fillTableComment() {
+
+	//获取表的注解
+	tableSQL := `SELECT table_comment
+	FROM information_schema.tables 
+	WHERE table_schema=? AND table_name = ?;`
+
+	var temp string
+	receiver.DB.Raw(tableSQL, receiver.DataBaseName, receiver.TableName).Find(&temp)
+
+	//把"表"这个后缀去掉，比如用户表，改为用户，这样代码生成器才好用
+	//但是这样太自定义化了，不太好
+	//cutStr, _ := strings.CutSuffix(temp, "表")
+	receiver.TableComment = temp
+}
+
+// 填充字段信息，根据mapping
+func (receiver *Table) fillFields(mapping map[string]string) {
+	var myFields []field
+
+	//获取字段的信息，这里必须要ORDER BY ordinal_position，不然取出来是无序的
+	fieldSQL := `
+		SELECT column_name as FieldName,column_type as FieldType,column_comment as FieldComment
+		FROM information_schema.columns
+		WHERE table_schema = ? AND table_name = ? ORDER BY ordinal_position;
+	`
+	var fieldTemps []field
+	receiver.DB.Raw(fieldSQL, receiver.DataBaseName, receiver.TableName).Find(&fieldTemps)
+
+	for _, fieldTemp := range fieldTemps {
+		//根据mapping改变字段类型，但是返回的type带有小括号
+		//比如varchar(255),我们只需要255，此时我们小括号的位置，然后从这个位置往后截取掉
+		cutIndex := strings.Index(fieldTemp.FieldType, "(")
+
+		//如果找到了(，那就去掉，去掉后返回回去
+		if cutIndex != -1 {
+			pureType := fieldTemp.FieldType[:cutIndex]
+
+			//通过映射获取到映射类型
+			fieldTemp.FieldType = mapping[pureType]
+		} else {
+			//如果没有找到，那么直接通过映射获取到映射类型即可
+			fieldTemp.FieldType = mapping[fieldTemp.FieldType]
+		}
+
+		myFields = append(myFields, fieldTemp)
+
+	}
+	receiver.Fields = myFields
+}

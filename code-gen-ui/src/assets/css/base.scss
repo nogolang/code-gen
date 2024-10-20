@@ -1,0 +1,45 @@
+
+*{
+  /*所有标签的内外边距清零*/
+  margin: 0;
+  padding: 0;
+
+  /*css3盒子模型*/
+  box-sizing: border-box;
+}
+
+
+/*body里设置一些初始化样式*/
+.body{
+
+  /*默认行高是字体的1.5倍*/
+  line-height: 1.5;
+}
+
+a{
+  /*去掉a的下边框*/
+  text-decoration: none;
+
+  /*改变默认的颜色为黑色*/
+  color:black
+}
+
+/*去掉li前面的圆点*/
+li{
+  list-style: none;
+}
+
+img{
+  /*照顾低版本浏览器,如果有链接会加上边框*/
+  border: 0;
+}
+
+button{
+  /*鼠标经过按钮的时候变为小手*/
+  cursor: pointer;
+}
+
+/*去掉input的内边框*/
+input {
+  outline: none;
+}
