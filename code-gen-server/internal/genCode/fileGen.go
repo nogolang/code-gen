@@ -124,7 +124,7 @@ func (receiver *FileGen) parseTemplateFile(data interface{}, tbName string) erro
 	err = files.Execute(outIO, data)
 	if err != nil {
 		//把模板文件出错的信息返回
-		return commonRes.FileTemplateParseError.WithReason(err.Error())
+		return commonRes.FileTemplateParseError.WithReason("文件名" + outFile + ":" + err.Error())
 	}
 
 	//生成后关闭流，不然下次生成就替换不了了
