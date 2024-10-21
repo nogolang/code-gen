@@ -53,10 +53,9 @@ func (receiver *Table) fillTableComment() {
 	var temp string
 	receiver.DB.Raw(tableSQL, receiver.DataBaseName, receiver.TableName).Find(&temp)
 
-	//把"表"这个后缀去掉，比如用户表，改为用户，这样代码生成器才好用
-	//但是这样太自定义化了，不太好
-	//cutStr, _ := strings.CutSuffix(temp, "表")
-	receiver.TableComment = temp
+	//把"表"这个后缀去掉，比如用户表，改为用户
+	cutStr, _ := strings.CutSuffix(temp, "表")
+	receiver.TableComment = cutStr
 }
 
 // 填充字段信息，根据mapping
