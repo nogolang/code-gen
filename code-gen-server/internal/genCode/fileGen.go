@@ -41,10 +41,10 @@ type FileGen struct {
 	FinalOutDir string
 
 	//生成的文件名称是否是驼峰形式
-	IsCamelCase bool
+	IsCamelCase int
 }
 
-func NewFileGen(customFunc template.FuncMap, logger *zap.Logger, DB *gorm.DB, dataBaseName string, tableName []string, templatePath string, mappingStr string, nameSuffix string, fileSuffix string, finalOutDir string, isCamelCase bool) *FileGen {
+func NewFileGen(customFunc template.FuncMap, logger *zap.Logger, DB *gorm.DB, dataBaseName string, tableName []string, templatePath string, mappingStr string, nameSuffix string, fileSuffix string, finalOutDir string, isCamelCase int) *FileGen {
 	return &FileGen{CustomFunc: customFunc, logger: logger, DataBaseName: dataBaseName, DB: DB, TableName: tableName, TemplatePath: templatePath, MappingStr: mappingStr, NameSuffix: nameSuffix, FileSuffix: fileSuffix, FinalOutDir: finalOutDir, IsCamelCase: isCamelCase}
 }
 
@@ -104,15 +104,20 @@ func (receiver *FileGen) parseTemplateFile(data interface{}, tbName string) erro
 		return commonRes.FileCreateTemplateError.WithReason(err.Error())
 	}
 
+	//值1代表原始表名
+	//值2是小驼峰
+	//值3是大驼峰
+	switch receiver.IsCamelCase {
+	case 1:
+		tbName = tbName
+	case 2:
+		tbName = strutil.CamelCase(tbName)
+	case 3:
+		tbName = strutil.UpperFirst(strutil.CamelCase(tbName))
+	}
+
 	//比如生成的目录是/gen/out/httpApi/，文件名称是userHttp.go
 	outFile := receiver.FinalOutDir + "/" + tbName + receiver.NameSuffix + receiver.FileSuffix
-
-	//看看外部指定的文件名称是否是驼峰形式
-	//因为有些人想生成的文件名称是这样的user_http 蛇形命名
-	//有些是userHttp 驼峰
-	if receiver.IsCamelCase {
-		tbName = strutil.CamelCase(tbName)
-	}
 
 	//创建文件
 	outIO, err := os.OpenFile(outFile, os.O_CREATE, 0666)

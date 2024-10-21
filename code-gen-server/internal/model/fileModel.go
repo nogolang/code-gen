@@ -33,7 +33,7 @@ type FileModel struct {
 	FileSuffix string `json:"fileSuffix" gorm:"column:file_suffix"`
 
 	//生成的文件名称是否是驼峰形式
-	IsCamelCase bool `json:"isCamelCase" gorm:"column:is_camel_case;"`
+	IsCamelCase int `json:"isCamelCase" gorm:"column:is_camel_case;"`
 
 	//所属mapping
 	MappingId int `json:"mappingId" gorm:"column:mapping_id"`

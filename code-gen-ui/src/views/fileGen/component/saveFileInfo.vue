@@ -4,6 +4,7 @@ import {Check, Delete, WarningFilled} from "@element-plus/icons-vue";
 import * as fileApi from "@/api/fileApi.js"
 import {ElMessage} from "element-plus";
 import MappingSelect from "@/views/fileGen/component/mappingSelect.vue";
+import FileCamelStatus from "@/views/fileGen/component/fileCamelStatus.vue";
 
 const saveDialog= ref(false)
 const isUpdate= ref(false)
@@ -18,7 +19,7 @@ const form = ref({
   nameSuffix:"",
   fileSuffix:"",
   //生成出来的文件名称是蛇形还是驼峰
-  isCamelCase:false,
+  isCamelCase:"",
 
   //属于哪个mapping
   mappingId:"",
@@ -119,7 +120,7 @@ defineExpose({
           是否驼峰
             <el-tooltip
                 effect="dark"
-                content="默认生成的文件名是user_table形式，改为驼峰则是userTable"
+                content="原表名user_info,小驼峰userInfo,大驼峰UserInfo"
             >
               <el-icon>
                 <WarningFilled/>
@@ -127,11 +128,7 @@ defineExpose({
             </el-tooltip>
           </div>
         </template>
-        <el-switch
-            v-model="form.isCamelCase"
-            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-        >
-        </el-switch>
+        <file-camel-status v-model.number="form.isCamelCase"></file-camel-status>
       </el-form-item>
     </el-form>
       <template #footer>
