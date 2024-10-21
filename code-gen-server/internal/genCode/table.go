@@ -7,12 +7,13 @@ import (
 )
 
 type Table struct {
-	DB                    *gorm.DB
-	TableName             string  //表名
-	TableNameWithBigCamel string  //表名    string  //表名
-	TableComment          string  //表的注解
-	DataBaseName          string  //表所在的数据库名称
-	Fields                []field //表的字段
+	DB                      *gorm.DB
+	TableName               string  //表名
+	TableNameWithBigCamel   string  //大驼峰表名
+	TableNameWithSmallCamel string  //小驼峰表名
+	TableComment            string  //表的注解
+	DataBaseName            string  //表所在的数据库名称
+	Fields                  []field //表的字段
 }
 
 // Field代表数据库的字段名称和类型
@@ -26,10 +27,11 @@ type field struct {
 
 func NewTable(dataBaseName string, tableName string, db *gorm.DB) *Table {
 	return &Table{
-		TableName:             tableName,
-		TableNameWithBigCamel: strutil.UpperFirst(strutil.CamelCase(tableName)),
-		DataBaseName:          dataBaseName,
-		DB:                    db,
+		TableName:               tableName,
+		TableNameWithBigCamel:   strutil.UpperFirst(strutil.CamelCase(tableName)),
+		TableNameWithSmallCamel: strutil.CamelCase(tableName),
+		DataBaseName:            dataBaseName,
+		DB:                      db,
 	}
 }
 
