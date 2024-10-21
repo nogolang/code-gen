@@ -109,7 +109,7 @@ const afterSaveFile=()=>{
           <el-collapse>
               <el-collapse-item  v-for="item in props.row.fileAndGroups" :key="item">
                 <template #title style="position: relative">
-                  <div>{{item.templateName}}</div>
+                  <div>{{item.outDir}}</div>
                   <el-icon :size="20" style="position: absolute;right: 80px">
                     <Edit  @click="openFileUpdateDialog(item.fileInfo.id)"/>
                   </el-icon>
