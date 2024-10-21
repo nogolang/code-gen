@@ -17,5 +17,14 @@ var (
 			first = strings.ToLower(first)
 			return first + remain
 		},
+		"isGormDeleteAt": func(str string) bool {
+			//如果是deleteAt字段，那么类型变为gorm.DeletedAt
+			if strings.Contains(str, "DeletedAt") ||
+				strings.Contains(str, "deleted_at") ||
+				strings.Contains(str, "deleteAt") {
+				return true
+			}
+			return false
+		},
 	}
 )
