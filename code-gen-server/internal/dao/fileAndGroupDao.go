@@ -68,3 +68,11 @@ func (d *FileAndGroupDao) FindById(id int) (*model.FileAndGroupModel, error) {
 	}
 	return &obj, nil
 }
+
+func (d *FileAndGroupDao) DeleteById(id int) error {
+	tx := d.Db.Delete(&model.FileAndGroupModel{}, id)
+	if tx.Error != nil {
+		return errors.WithMessage(tx.Error, "删除组和模板文件的中间表出错")
+	}
+	return nil
+}

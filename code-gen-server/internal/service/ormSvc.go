@@ -22,11 +22,11 @@ func (receiver *OrmSvc) FindById(id int) (*model.OrmModel, error) {
 }
 
 func (receiver *OrmSvc) DeleteById(id int) error {
-	//把fileGen里的dataSources id置0
-	err := receiver.FileGenDao.SetZeroIdWithDatabaseId(id)
-	if err != nil {
-		return err
-	}
+	//把fileGen里的dataSources id也置0
+	//err := receiver.FileGenDao.SetZeroIdWithDatabaseId(id)
+	//if err != nil {
+	//	return err
+	//}
 
 	return receiver.Dao.DeleteById(id)
 }

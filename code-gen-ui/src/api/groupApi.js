@@ -1,6 +1,11 @@
 import request from "@/api/index.js";
 
 
+export const DeleteFileGroupMiddle=(id)=> {
+	return request.delete("/group/deleteFileGroupMiddle/"+id)
+}
+
+
 export const FindAllNoPagination=(query)=> {
 	return request.get("/group/findAllNoPagination",query)
 }

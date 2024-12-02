@@ -10,6 +10,7 @@ import DatabaseTableSelect from "@/views/fileGen/component/databaseTableSelect.v
 import MappingSelect from "@/views/fileGen/component/mappingSelect.vue";
 import FileSelect from "@/views/fileGen/component/fileSelect.vue";
 import FileStatus from "@/views/fileGen/component/fileStatus.vue";
+import {DeleteFileGroupMiddle} from "@/api/groupApi.js";
 
 const saveDialog= ref(false)
 const isUpdate= ref(false)
@@ -117,6 +118,17 @@ const confirmAddFile=async ()=>{
 
 }
 
+
+//在数组里删除选中的元素
+//item是一个对象
+const deleteFileGroupMiddle=async (item)=>{
+  form.value.fileAndGroups.splice(form.value.fileAndGroups.indexOf(item),1)
+  let res=await DeleteFileGroupMiddle(item.id)
+  ElMessage.success(res.message)
+}
+
+
+
 defineExpose({
   open,
 })
@@ -148,7 +160,7 @@ defineExpose({
                   <div>{{item.templateName}}</div>
                   <!--后面加上删除图片-->
                   <el-icon :size="20" style="position: absolute;right: 80px">
-                    <Delete @click="form.fileAndGroups.splice(form.fileAndGroups.indexOf(item),1)"/>
+                    <Delete @click="deleteFileGroupMiddle(item)"/>
                   </el-icon>
 
                   <file-status style="margin-left: 20px" :status="item.fileInfo.templatePathIsExist"></file-status>

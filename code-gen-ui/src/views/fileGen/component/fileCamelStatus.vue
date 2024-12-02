@@ -17,7 +17,7 @@ const options=ref([
   -->
   <el-select
       v-model="model"
-      placeholder="选择模板文件"
+      placeholder="选择形式"
   >
     <el-option v-for="item in options"
                :key="item.id"

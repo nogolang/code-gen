@@ -1,10 +1,12 @@
 package genCode
 
 import (
+	"code-gen/internal/model"
 	"code-gen/internal/utils/commonRes"
 	"code-gen/internal/utils/genUtils"
 	"github.com/Masterminds/sprig/v3"
 	"github.com/duke-git/lancet/v2/strutil"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"os"
@@ -19,8 +21,8 @@ type FileGen struct {
 	//db对象
 	DB *gorm.DB
 
-	//数据库名
-	DataBaseName string
+	//要生成的数据库对象，
+	DbModel *model.OrmModel
 
 	//表名
 	TableName []string
@@ -44,8 +46,8 @@ type FileGen struct {
 	IsCamelCase int
 }
 
-func NewFileGen(customFunc template.FuncMap, logger *zap.Logger, DB *gorm.DB, dataBaseName string, tableName []string, templatePath string, mappingStr string, nameSuffix string, fileSuffix string, finalOutDir string, isCamelCase int) *FileGen {
-	return &FileGen{CustomFunc: customFunc, logger: logger, DataBaseName: dataBaseName, DB: DB, TableName: tableName, TemplatePath: templatePath, MappingStr: mappingStr, NameSuffix: nameSuffix, FileSuffix: fileSuffix, FinalOutDir: finalOutDir, IsCamelCase: isCamelCase}
+func NewFileGen(customFunc template.FuncMap, logger *zap.Logger, DB *gorm.DB, DbModel *model.OrmModel, tableName []string, templatePath string, mappingStr string, nameSuffix string, fileSuffix string, finalOutDir string, isCamelCase int) *FileGen {
+	return &FileGen{CustomFunc: customFunc, logger: logger, DbModel: DbModel, DB: DB, TableName: tableName, TemplatePath: templatePath, MappingStr: mappingStr, NameSuffix: nameSuffix, FileSuffix: fileSuffix, FinalOutDir: finalOutDir, IsCamelCase: isCamelCase}
 }
 
 // GenFile 生成文件
@@ -53,7 +55,7 @@ func (receiver *FileGen) GenFile() error {
 	//根据多个表生成
 	for _, tbName := range receiver.TableName {
 		//创建table对象
-		table := NewTable(receiver.DataBaseName, tbName, receiver.DB)
+		table := NewTable(receiver.DbModel.DataBaseName, receiver.DbModel.Prefix, tbName, receiver.DB)
 
 		//把mapping json转换到map
 		//读取文件的映射字符串
@@ -77,14 +79,27 @@ func (receiver *FileGen) GenFile() error {
 // 解析模板文件
 // 传递数据
 func (receiver *FileGen) parseTemplateFile(data interface{}, tbName string) error {
-	//先删除之前的目录
-	//err := os.RemoveAll(receiver.FinalOutDir)
-	//if err != nil {
-	//	return errors.Wrap(err,"删除出错")
-	//}
+	//如果fileGroup.OutDir中含有{{tableSmallCamel}}，那么多生成一级目录
+	//也就是以表名生成一个文件夹，然后把生成的文件放到这个文件夹里
+	//采用替换的方式
+	//比如我们指定生成目录的时候指定要生成到/out/{{table}}目录
+	if strings.Contains(receiver.FinalOutDir, "{{table}}") {
+		receiver.FinalOutDir = strings.ReplaceAll(receiver.FinalOutDir, "{{table}}", tbName)
+	} else if strings.Contains(receiver.FinalOutDir, "{{tableWithSmallCamel}}") {
+		receiver.FinalOutDir = strings.ReplaceAll(receiver.FinalOutDir, "{{tableWithSmallCamel}}", strutil.CamelCase(tbName))
+	} else if strings.Contains(receiver.FinalOutDir, "{{tableWithBigCamel}}") {
+		receiver.FinalOutDir = strings.ReplaceAll(receiver.FinalOutDir, "{{tableWithBigCamel}}", strutil.UpperFirst(strutil.CamelCase(tbName)))
+	}
+
+	var err error
+	//先删除之前的目录,要清空缓存，不然生成会有点乱码
+	err = os.RemoveAll(receiver.FinalOutDir)
+	if err != nil {
+		return errors.Wrap(err, "删除出错")
+	}
 
 	//如果目录没有，则还需要创建目录
-	_, err := os.Stat(receiver.FinalOutDir)
+	_, err = os.Stat(receiver.FinalOutDir)
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(receiver.FinalOutDir, os.ModePerm)
 		if err != nil {

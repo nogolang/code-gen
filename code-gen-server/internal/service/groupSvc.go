@@ -53,22 +53,23 @@ func (receiver *GroupSvc) FindById(id int) (*model.GroupModel, error) {
 	//处理一下fileInfo和templateName
 	//仅仅是展示给前台
 	for _, afg := range allFileAndGroup {
-		file, _ := receiver.FileDao.FindById(afg.FileId)
-		//原始fileInfo
-		afg.FileInfo = file
+		file, err := receiver.FileDao.FindById(afg.FileId)
+		if file != nil {
+			//原始fileInfo
+			afg.FileInfo = file
 
-		//再填充一下TemplateName
-		index := strings.LastIndex(file.TemplatePath, "/")
-		afg.TemplateName = file.TemplatePath[index+1:]
+			//再填充一下TemplateName
+			index := strings.LastIndex(file.TemplatePath, "/")
+			afg.TemplateName = file.TemplatePath[index+1:]
 
-		//判断模板文件释放存在
-		_, err = genUtils.ReadFile(file.TemplatePath)
-		if errors.Is(err, os.ErrNotExist) {
-			file.TemplatePathIsExist = false
-		} else {
-			file.TemplatePathIsExist = true
+			//判断模板文件释放存在
+			_, err = genUtils.ReadFile(file.TemplatePath)
+			if errors.Is(err, os.ErrNotExist) {
+				file.TemplatePathIsExist = false
+			} else {
+				file.TemplatePathIsExist = true
+			}
 		}
-
 	}
 
 	group, err := receiver.Dao.FindById(id)
@@ -78,6 +79,15 @@ func (receiver *GroupSvc) FindById(id int) (*model.GroupModel, error) {
 
 	group.FileAndGroups = allFileAndGroup
 	return group, nil
+}
+
+// 根据id删除某一个中间表信息
+// 前端只要删除了，就会发送，但是如果传递的是一个0，那就代表还没插入到数据库
+func (receiver *GroupSvc) DeleteFileGroupMiddle(id int) error {
+	if id == 0 {
+		return nil
+	}
+	return receiver.FileAndGroupDao.DeleteById(id)
 }
 
 // 删除组的时候，删除allFileAndGroup

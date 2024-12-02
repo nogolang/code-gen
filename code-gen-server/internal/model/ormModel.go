@@ -8,6 +8,7 @@ type OrmModel struct {
 	DataBaseName string `json:"dataBaseName"`
 	Username     string `json:"username"`
 	Password     string `json:"password"`
+	Prefix       string `json:"prefix"`
 }
 type OrmModelQuery struct {
 	Page     int    `json:"page"`

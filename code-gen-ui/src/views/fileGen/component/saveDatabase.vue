@@ -19,6 +19,7 @@ const form=ref({
   username:'',
   password:'',
   suffix:'',
+  prefix:'',
 })
 
 const open = (id)=>{
@@ -105,6 +106,9 @@ defineExpose({
         </el-form-item>
         <el-form-item label="password:">
           <el-input clearable type="password"  v-model="form.password"></el-input>
+        </el-form-item>
+        <el-form-item label="数据库前缀是什么:">
+          <el-input clearable type="text" placeholder="比如my_product,前缀就是my_,后面可能要用到'去除指定前缀'" v-model="form.prefix"></el-input>
         </el-form-item>
       </el-form>
       <div style="position: absolute;right: 20px">

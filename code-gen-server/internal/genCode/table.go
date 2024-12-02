@@ -7,13 +7,17 @@ import (
 )
 
 type Table struct {
-	DB                      *gorm.DB
-	TableName               string  //表名
-	TableNameWithBigCamel   string  //大驼峰表名
-	TableNameWithSmallCamel string  //小驼峰表名
-	TableComment            string  //表的注解
-	DataBaseName            string  //表所在的数据库名称
-	Fields                  []field //表的字段
+	DB                       *gorm.DB
+	TableName                string //表名
+	IdName                   string //当前表的id的名称和类型，id必须在第1个字段
+	IdType                   string
+	IdNameWithSmallCamel     string  //小驼峰形式的id名称
+	TableNameWithBigCamel    string  //大驼峰表名
+	TableNameWithSmallCamel  string  //小驼峰表名
+	TableComment             string  //表的注解
+	DataBaseName             string  //表所在的数据库名称
+	DataBaseNameWithNoPrefix string  //去除前缀的数据库名称
+	Fields                   []field //表的字段
 }
 
 // Field代表数据库的字段名称和类型
@@ -25,13 +29,14 @@ type field struct {
 	FieldComment            string //字段的注解
 }
 
-func NewTable(dataBaseName string, tableName string, db *gorm.DB) *Table {
+func NewTable(dataBaseName string, dataBaseNamePrefix string, tableName string, db *gorm.DB) *Table {
 	return &Table{
-		TableName:               tableName,
-		TableNameWithBigCamel:   strutil.UpperFirst(strutil.CamelCase(tableName)),
-		TableNameWithSmallCamel: strutil.CamelCase(tableName),
-		DataBaseName:            dataBaseName,
-		DB:                      db,
+		TableName:                tableName,
+		TableNameWithBigCamel:    strutil.UpperFirst(strutil.CamelCase(tableName)),
+		TableNameWithSmallCamel:  strutil.CamelCase(tableName),
+		DataBaseName:             dataBaseName,
+		DataBaseNameWithNoPrefix: strings.ReplaceAll(dataBaseName, dataBaseNamePrefix, ""),
+		DB:                       db,
 	}
 }
 
@@ -98,5 +103,11 @@ func (receiver *Table) fillFields(mapping map[string]string) {
 		myFields = append(myFields, fieldTemp)
 
 	}
+
+	//赋值id的类型和字符串，确保id在第1个字段
+	receiver.IdName = myFields[0].FieldName
+	receiver.IdNameWithSmallCamel = strutil.CamelCase(myFields[0].FieldName)
+	receiver.IdType = myFields[0].FieldType
+
 	receiver.Fields = myFields
 }

@@ -24,6 +24,7 @@ func NewGroupController(engine *gin.Engine, GroupService service.GroupSvc, Logge
 	group.POST("/add", ctl.Add())
 	group.POST("/findAll", ctl.FindAll())
 	group.GET("/findAllNoPagination", ctl.FindAllNoPagination())
+	group.DELETE("/deleteFileGroupMiddle/:id", ctl.DeleteFileGroupMiddle())
 	return ctl
 }
 
@@ -136,6 +137,27 @@ func (receiver *GroupController) FindAllNoPagination() gin.HandlerFunc {
 			return
 		}
 		context.JSON(http.StatusOK, commonRes.OK.WithData(data))
+		return
+	}
+}
+
+func (receiver *GroupController) DeleteFileGroupMiddle() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		//不管有没有id都提示删除成功，因为可能还没存到中间表
+		//如果id不为0，才去中间表找
+		temp := context.Param("id")
+		id, err := strconv.Atoi(temp)
+		if err != nil || id == 0 {
+			context.JSON(http.StatusOK, commonRes.DeleteOK)
+			return
+		}
+
+		err = receiver.GroupService.DeleteFileGroupMiddle(id)
+		if err != nil {
+			context.Error(err)
+			return
+		}
+		context.JSON(http.StatusOK, commonRes.DeleteOK)
 		return
 	}
 }

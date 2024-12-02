@@ -125,14 +125,15 @@ func (receiver *FileGenSvc) GenFiles(ids []int) error {
 			//查询到mapping对象的内容
 			mappingModel, _ := receiver.MappingDao.FindById(fileModel.MappingId)
 
-			//最终生成目录，是组里的rootDir加上我们中间表的相对路径
+			//最终生成目录，是组里的rootDir加上中间表的相对路径
+			//这个中间件表是组和模板文件的中间表
 			finalOutDir := groupModel.RootDir + fileGroup.OutDir
 
 			gen := genCode.NewFileGen(
 				genUtils.CustomFunc,
 				receiver.Logger,
 				connect,
-				dbModel.DataBaseName,
+				dbModel,
 				tables,
 				fileModel.TemplatePath,
 				mappingModel.Content,

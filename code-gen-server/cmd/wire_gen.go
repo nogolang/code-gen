@@ -51,6 +51,10 @@ func WireApp() *conf.HttpServer {
 		Logger: logger,
 		Db:     db,
 	}
+	fileGenDao := &dao.FileGenDao{
+		Db:     db,
+		Logger: logger,
+	}
 	groupSvc := service.GroupSvc{
 		Logger:          logger,
 		Dao:             groupDao,
@@ -59,11 +63,13 @@ func WireApp() *conf.HttpServer {
 		MappingDao:      mappingPathDao,
 		OrmDao:          ormDao,
 		FileAndGroupDao: fileAndGroupDao,
+		FileGenDao:      fileGenDao,
 	}
 	groupController := controller.NewGroupController(engine, groupSvc, logger)
 	ormSvc := service.OrmSvc{
-		Logger: logger,
-		Dao:    ormDao,
+		Logger:     logger,
+		Dao:        ormDao,
+		FileGenDao: fileGenDao,
 	}
 	ormController := controller.NewOrmController(engine, ormSvc, logger)
 	mappingSvc := service.MappingSvc{
@@ -73,10 +79,6 @@ func WireApp() *conf.HttpServer {
 		OutDirDao: outDir,
 	}
 	mappingController := controller.NewMappingController(engine, mappingSvc, logger)
-	fileGenDao := &dao.FileGenDao{
-		Db:     db,
-		Logger: logger,
-	}
 	fileGenSvc := service.FileGenSvc{
 		Logger:          logger,
 		Dao:             fileGenDao,
