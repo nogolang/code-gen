@@ -8,8 +8,8 @@ import router from '@/router'
 import NProgress from 'nprogress';
 
 let myAxios = request.create({
-    //api开头
-    baseURL:"/api",
+    //api开头，因为要整合到gin里，所以就不写/api了
+    baseURL:"",
     timeout:5000
 });
 

@@ -12,6 +12,12 @@ var ProviderSet = wire.NewSet(
 	OrmProvider,
 	MappingProvider,
 	FileGenProvider,
+	StaticProvider,
+)
+
+// 静态文件服务
+var StaticProvider = wire.NewSet(
+	NewStaticController,
 )
 
 var GroupProvider = wire.NewSet(

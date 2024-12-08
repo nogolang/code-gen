@@ -71,14 +71,16 @@ func WireApp(allConfig *configs.AllConfig) *conf.HttpServer {
 		MappingDao: mappingPathDao,
 	}
 	fileGenController := controller.NewFileGenController(engine, fileGenSvc, logger)
+	staticController := controller.NewStaticController(engine, logger)
 	httpServer := &conf.HttpServer{
-		Logger:         logger,
-		Engine:         engine,
-		AllConfig:      allConfig,
-		GroupControl:   groupController,
-		OrmControl:     ormController,
-		MappingControl: mappingController,
-		FileGenControl: fileGenController,
+		Logger:           logger,
+		Engine:           engine,
+		AllConfig:        allConfig,
+		GroupControl:     groupController,
+		OrmControl:       ormController,
+		MappingControl:   mappingController,
+		FileGenControl:   fileGenController,
+		StaticController: staticController,
 	}
 	return httpServer
 }

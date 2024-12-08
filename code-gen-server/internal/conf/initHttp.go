@@ -6,10 +6,12 @@ import (
 	"code-gen/internal/utils"
 	"code-gen/internal/utils/httpMiddle"
 	"context"
+	"embed"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"io/fs"
 	"net/http"
 	"os"
 	"os/signal"
@@ -55,8 +57,25 @@ func loadMiddleware(logger *zap.Logger, engine *gin.Engine) {
 	engine.Use(gin.CustomRecovery(httpMiddle.DefaultHandleRecovery))
 }
 
+//go:embed all:dist
+var files embed.FS
+
 func NewGin(logger *zap.Logger) *gin.Engine {
 	engine := gin.New()
+
+	//要对assets也放行，需要用sub获取到子目录
+	assets, _ := fs.Sub(files, "dist/assets")
+	engine.StaticFS("/assets", http.FS(assets))
+
+	//处理html，html需要设置Content-Type为text/html
+	//  实际上如果直接使用static是可以的，gin会自动添加Content-Type
+	//但是我们使用的是文件系统，需要从里面读取文件
+	engine.GET("/", func(c *gin.Context) {
+		data, _ := files.ReadFile("dist/index.html")
+		c.Header("Content-Type", "text/html")
+		c.Header("Accept", "text/html")
+		c.Data(http.StatusOK, "text/html", data)
+	})
 
 	//加载中间件
 	loadMiddleware(logger, engine)
@@ -95,6 +114,8 @@ func (receiver *HttpServer) ginServer() {
 			receiver.Logger.Error("服务已关闭：", zap.Error(err))
 		}
 	}()
+
+	receiver.Logger.Sugar().Infof("启动端口==%d", receiver.AllConfig.Server.HttpPort)
 
 	//创建信号，返回一个channel
 	quit := make(chan os.Signal)
