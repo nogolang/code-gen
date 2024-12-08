@@ -1,13 +1,14 @@
 package conf
 
 import (
+	"code-gen/configs"
 	"code-gen/internal/controller"
 	"code-gen/internal/utils"
 	"code-gen/internal/utils/httpMiddle"
 	"context"
+	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -17,8 +18,9 @@ import (
 )
 
 type HttpServer struct {
-	Logger *zap.Logger
-	Engine *gin.Engine
+	Logger    *zap.Logger
+	Engine    *gin.Engine
+	AllConfig *configs.AllConfig
 
 	//我们写了什么controller,需要在这里进行加入
 	//并且编写对应的provider
@@ -67,26 +69,20 @@ type HttpServerConfig struct {
 }
 
 func (receiver *HttpServer) RunServer() {
-	var config HttpServerConfig
-	err := viper.UnmarshalKey("http", &config)
-	if err != nil {
-		receiver.Logger.Fatal("读取http配置失败", zap.Error(err))
-		return
-	}
 
 	//注册全局验证器，里面会有自定义的一些校验
-	err = utils.InitGlobalValidator()
+	err := utils.InitGlobalValidator()
 	if err != nil {
 		receiver.Logger.Sugar().Fatal(err)
 		return
 	}
 
 	//启动gin
-	receiver.ginServer(config)
+	receiver.ginServer()
 }
-func (receiver *HttpServer) ginServer(config HttpServerConfig) {
+func (receiver *HttpServer) ginServer() {
 	httpServer := &http.Server{
-		Addr:         ":" + config.Port,
+		Addr:         ":" + fmt.Sprintf("%d", receiver.AllConfig.Server.HttpPort),
 		Handler:      receiver.Engine,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
@@ -115,9 +111,9 @@ func (receiver *HttpServer) ginServer(config HttpServerConfig) {
 		receiver.Logger.Error("关闭服务错误", zap.Error(err))
 	}
 
-	receiver.Logger.Info("释放资源中....")
+	receiver.Logger.Info(receiver.AllConfig.Server.ServerName + "  释放资源中....")
+	receiver.Logger.Info(receiver.AllConfig.Server.ServerName + "  退出了....")
 
 	//阻塞
 	<-ctx.Done()
-	receiver.Logger.Info("退出了....")
 }

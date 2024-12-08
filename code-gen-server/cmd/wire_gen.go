@@ -7,6 +7,7 @@
 package main
 
 import (
+	"code-gen/configs"
 	"code-gen/internal/conf"
 	"code-gen/internal/controller"
 	"code-gen/internal/dao"
@@ -16,10 +17,10 @@ import (
 // Injectors from wire.go:
 
 // 注入http服务
-func WireApp() *conf.HttpServer {
-	logger := conf.NewZapConfig()
+func WireApp(allConfig *configs.AllConfig) *conf.HttpServer {
+	logger := conf.NewZapConfig(allConfig)
 	engine := conf.NewGin(logger)
-	db := conf.NewGormConfig(logger)
+	db := conf.NewGormConfig(allConfig, logger)
 	groupDao := &dao.GroupDao{
 		Logger: logger,
 		Db:     db,
@@ -73,6 +74,7 @@ func WireApp() *conf.HttpServer {
 	httpServer := &conf.HttpServer{
 		Logger:         logger,
 		Engine:         engine,
+		AllConfig:      allConfig,
 		GroupControl:   groupController,
 		OrmControl:     ormController,
 		MappingControl: mappingController,

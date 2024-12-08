@@ -14,16 +14,6 @@ var ProviderSet = wire.NewSet(
 	FileGenProvider,
 )
 
-// engine由外部注入进来即可
-//var FileProvider = wire.NewSet(
-//	NewFileController,
-//	//接口必须绑定实现类，我们才能使用接口低层模块的接口
-//	wire.Struct(new(service.FileService), "*"),
-//	wire.Struct(new(dao.FileDao), "*"),
-//	wire.Struct(new(dao.MappingPathDao), "*"),
-//	wire.Struct(new(dao.OutDir), "*"),
-//)
-
 var GroupProvider = wire.NewSet(
 	NewGroupController,
 	//接口必须绑定实现类，我们才能使用接口低层模块的接口

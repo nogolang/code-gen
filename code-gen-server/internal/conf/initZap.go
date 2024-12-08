@@ -1,9 +1,8 @@
 package conf
 
 import (
-	"code-gen/internal/utils"
+	"code-gen/configs"
 	"github.com/google/wire"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -15,27 +14,20 @@ import (
 
 var ZapProvider = wire.NewSet(NewZapConfig)
 
-func NewZapConfig() *zap.Logger {
-	type ZapConfig struct {
-		Level string `json:"level"`
-	}
-
-	var receiver ZapConfig
-	err := viper.UnmarshalKey("zap", &receiver)
-	if err != nil {
-		log.Fatal("读取zap配置失败", err)
-		return nil
-	}
-
+func NewZapConfig(allConfig *configs.AllConfig) *zap.Logger {
 	//日志级别
 	level := zap.NewAtomicLevel()
-	switch receiver.Level {
+	switch allConfig.Log.Level {
 	case "debug":
 		level.SetLevel(zap.DebugLevel)
 	case "info":
 		level.SetLevel(zap.InfoLevel)
+	case "warning":
+		level.SetLevel(zap.WarnLevel)
 	case "error":
 		level.SetLevel(zap.ErrorLevel)
+	case "fatal":
+		level.SetLevel(zap.FatalLevel)
 	default:
 		log.Fatal("日志级别指定错误")
 		return nil
@@ -44,7 +36,7 @@ func NewZapConfig() *zap.Logger {
 	var logger *zap.Logger
 
 	//设置我们指定的级别
-	newCoreError := zapcore.NewCore(getEncoding(), getLogWriter(), level.Level())
+	newCoreError := zapcore.NewCore(getEncoding(allConfig), getLogWriter(allConfig), level.Level())
 	logger = zap.New(newCoreError, zap.AddCaller())
 
 	//这里使用了wire，严格准守di原则
@@ -53,30 +45,31 @@ func NewZapConfig() *zap.Logger {
 	return logger
 }
 
-func getEncoding() zapcore.Encoder {
+func getEncoding(allConfig *configs.AllConfig) zapcore.Encoder {
 	var newEncoder zapcore.Encoder
-	//设置编码方式和自定义的时间，开发环境就是json，生产环境是Console
-	if isDev := utils.IsDev(); isDev {
+
+	encodeTime := func(t time.Time, encoder zapcore.PrimitiveArrayEncoder) {
+		encoder.AppendString(t.Format(time.DateTime))
+	}
+
+	log.Println("日志级别为：", allConfig.Log.Level) //设置编码方式和自定义的时间，开发环境就是json，生产环境是Console
+	if isDev := allConfig.IsDev(); isDev {
 		config := zap.NewDevelopmentEncoderConfig()
-		config.EncodeTime = func(t time.Time, encoder zapcore.PrimitiveArrayEncoder) {
-			encoder.AppendString(t.Format(time.DateTime))
-		}
+		config.EncodeTime = encodeTime
 		newEncoder = zapcore.NewConsoleEncoder(config)
 	} else {
 		config := zap.NewProductionEncoderConfig()
-		config.EncodeTime = func(t time.Time, encoder zapcore.PrimitiveArrayEncoder) {
-			encoder.AppendString(t.Format(time.DateTime))
-		}
+		config.EncodeTime = encodeTime
 		newEncoder = zapcore.NewJSONEncoder(config)
 	}
 	return newEncoder
 }
 
-func getLogWriter() zapcore.WriteSyncer {
+func getLogWriter(allConfig *configs.AllConfig) zapcore.WriteSyncer {
 	//如果是开发环境，向控制台输出，生产环境应该向文件输出
 	//文件则向lumber输出，由lumber切割
 	var writer io.Writer
-	if isDev := utils.IsDev(); isDev {
+	if isDev := allConfig.IsDev(); isDev {
 		writer = os.Stdout
 	} else {
 		writer = lumberJackConfig()
@@ -87,7 +80,7 @@ func getLogWriter() zapcore.WriteSyncer {
 // 日志切割
 func lumberJackConfig() *lumberjack.Logger {
 	//获取项目目录，如果本目录下logs目录不存在
-	//就在当前目录下创建logs目录
+	//就在当前项目运行目录下创建logs目录
 	dir, _ := os.Getwd()
 	dir = dir + "/logs"
 
@@ -120,8 +113,8 @@ func lumberJackConfig() *lumberjack.Logger {
 		Filename: fileName,
 
 		//日志文件的最大尺寸,单位MB
-		//切割出来的每个文件都是1MB,但是最开始的主文件可能会小一点
-		MaxSize: 1,
+		//切割出来的每个文件都是xMB,但是最开始的主文件可能会小一点
+		MaxSize: 10,
 
 		//保留的旧的最大个数.此时我们输出了10MB的内容.
 		//但是只有5个切割文件+1个主文件.其余5个都删掉了.按照切割出来的日期.早期的会优先进行删除
