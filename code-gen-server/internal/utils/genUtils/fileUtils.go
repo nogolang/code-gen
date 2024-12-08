@@ -56,7 +56,9 @@ func RecursionFiles(path string) ([]string, error) {
 			out = append(out, tempOut...)
 		}
 	} else {
-		out = append(out, path)
+		if strings.HasSuffix(stat.Name(), "gohtml") {
+			out = append(out, path)
+		}
 	}
 
 	return out, nil

@@ -138,6 +138,11 @@ const afterSaveFile=()=>{
           {{scope.row.describe}}
         </template>
       </el-table-column>
+      <el-table-column label="搜索的目录">
+        <template #default="scope">
+          {{scope.row.searchRootDir}}
+        </template>
+      </el-table-column>
       <el-table-column label="生成到的根目录">
         <template #default="scope">
           {{scope.row.rootDir}}

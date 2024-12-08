@@ -213,7 +213,7 @@ defineExpose({
                   <mapping-select :options="mappingOptions"
                                   v-model="item.mappingId"></mapping-select>
                 </el-form-item>
-                <el-form-item label="是否驼峰:">
+                <el-form-item label="表名是否驼峰:">
                   <template #label>
                     <div class="myLabel">
                       是否驼峰

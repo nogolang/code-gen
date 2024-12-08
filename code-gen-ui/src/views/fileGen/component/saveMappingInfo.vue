@@ -1,7 +1,5 @@
 <script setup>
 import { ref,onMounted } from 'vue'
-import {dataBaseStore} from "@/stores/index.js";
-import * as fileApi  from "@/api/fileApi.js";
 import {ElMessage} from "element-plus";
 import * as mappingApi from "@/api/mappingApi.js";
 import { Mode } from 'vanilla-jsoneditor'
