@@ -8,7 +8,6 @@ type FileGenModel struct {
 	GroupId    int    `json:"groupId" gorm:"column:group_id;"`
 
 	//下面几个冗余字段，只是显示给前台
-	GroupDescribe string   `json:"groupDescribe" gorm:"-"`
 	DatabaseName  string   `json:"databaseName" gorm:"-"`
 	TableNamesArr []string `json:"tableNamesArr" gorm:"-"`
 }

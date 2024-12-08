@@ -4,8 +4,7 @@ import {ref,onMounted} from "vue";
 import SaveGroupInfo from "@/views/fileGen/component/saveGroupInfo.vue";
 import * as groupApi from "@/api/groupApi.js"
 import {ElMessage, ElMessageBox} from "element-plus";
-import {Delete, Edit} from "@element-plus/icons-vue";
-import SaveFileInfo from "@/views/fileGen/component/saveFileInfo.vue";
+import SaveFileInfo from "@/views/fileGen/component/saveFileGenInfo.vue";
 import FileStatus from "@/views/fileGen/component/fileStatus.vue";
 
 const saveGroupRef=ref(null)
@@ -104,37 +103,36 @@ const afterSaveFile=()=>{
         :data="tableData"
     >
       <!--可展开的表格-->
-      <el-table-column type="expand">
-        <template #default="props">
-          <el-collapse>
-              <el-collapse-item  v-for="item in props.row.fileAndGroups" :key="item">
-                <template #title style="position: relative">
-                  <div>{{item.outDir}}</div>
-                  <el-icon :size="20" style="position: absolute;right: 80px">
-                    <Edit  @click="openFileUpdateDialog(item.fileInfo.id)"/>
-                  </el-icon>
-                </template>
+      <!--<el-table-column type="expand">-->
+      <!--  <template #default="props">-->
+      <!--    <el-collapse>-->
+      <!--        <el-collapse-item  v-for="item in props.row.fileAndGroups" :key="item">-->
+      <!--          <template #title style="position: relative">-->
+      <!--            <div>{{item.outDir}}</div>-->
+      <!--            <el-icon :size="20" style="position: absolute;right: 80px">-->
+      <!--              <Edit  @click="openFileUpdateDialog(item.fileInfo.id)"/>-->
+      <!--            </el-icon>-->
+      <!--          </template>-->
+      <!--          &lt;!&ndash;自定义的图标不显示出来，不然最右侧有一个箭头图标&ndash;&gt;-->
+      <!--          <template #icon="{ isActive }">-->
+      <!--            <span class="icon-ele">-->
+      <!--              {{ isActive ? '' : '' }}-->
+      <!--            </span>-->
+      <!--          </template>-->
 
-                <!--自定义的图标不显示出来，不然最右侧有一个箭头图标-->
-                <template #icon="{ isActive }">
-                  <span class="icon-ele">
-                    {{ isActive ? '' : '' }}
-                  </span>
-                </template>
-
-                <div class="customTableInfo">
-                  <p>文件描述: {{item.fileInfo.describe}}</p>
-                  <p style="display: flex;align-items: center">
-                    模板路径: {{item.fileInfo.templatePath}}
-                    <file-status style="margin-left: 20px" :status="item.fileInfo.templatePathIsExist"></file-status>
-                  </p>
-                  <p>名称后缀: {{item.fileInfo.nameSuffix}}</p>
-                  <p>文件后缀: {{item.fileInfo.fileSuffix}}</p>
-                </div>
-              </el-collapse-item>
-          </el-collapse>
-        </template>
-      </el-table-column>
+      <!--          <div class="customTableInfo">-->
+      <!--            <p>文件描述: {{item.fileInfo.describe}}</p>-->
+      <!--            <p style="display: flex;align-items: center">-->
+      <!--              模板路径: {{item.fileInfo.templatePath}}-->
+      <!--              <file-status style="margin-left: 20px" :status="item.fileInfo.templatePathIsExist"></file-status>-->
+      <!--            </p>-->
+      <!--            <p>名称后缀: {{item.fileInfo.nameSuffix}}</p>-->
+      <!--            <p>文件后缀: {{item.fileInfo.fileSuffix}}</p>-->
+      <!--          </div>-->
+      <!--        </el-collapse-item>-->
+      <!--    </el-collapse>-->
+      <!--  </template>-->
+      <!--</el-table-column>-->
       <el-table-column label="描述">
         <template #default="scope">
           {{scope.row.describe}}

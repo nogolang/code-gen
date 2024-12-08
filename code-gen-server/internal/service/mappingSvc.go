@@ -7,10 +7,9 @@ import (
 )
 
 type MappingSvc struct {
-	Logger    *zap.Logger
-	Dao       *dao.MappingPathDao
-	FileDao   *dao.FileDao
-	OutDirDao *dao.OutDir
+	Logger  *zap.Logger
+	Dao     *dao.MappingPathDao
+	FileDao *dao.FileDao
 }
 
 func (receiver *MappingSvc) Add(m *model.MappingPathModel) error {

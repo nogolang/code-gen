@@ -124,11 +124,6 @@ const genFiles=async ()=>{
           {{scope.row.tableNames}}
         </template>
       </el-table-column>
-      <el-table-column label="组描述">
-        <template #default="scope">
-          {{scope.row.groupDescribe}}
-        </template>
-      </el-table-column>
       <el-table-column label="操作">
         <template #default="scope">
           <el-button type="primary"  @click="updateById(scope.row.id)">修改</el-button>

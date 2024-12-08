@@ -1,8 +1,8 @@
 import request from "@/api/index.js";
 
 
-export const DeleteFileGroupMiddle=(id)=> {
-	return request.delete("/group/deleteFileGroupMiddle/"+id)
+export const DeleteFileById=(id)=> {
+	return request.delete("/group/deleteFileById/"+id)
 }
 
 
@@ -22,6 +22,14 @@ export const FindAllFileByGroupId=(id)=> {
 
 export const FindById=(id)=> {
 	return request.get("/group/findById/"+id)
+}
+
+export const FindAllDir=(form)=> {
+	return request.post("/group/findAllDir",form)
+}
+
+export const FindAllDirForUpdate=(form)=> {
+	return request.post("/group/findAllDirForUpdate",form)
 }
 export const UpdateById=(id,form)=> {
 	return request.post("/group/updateById/"+id,form)

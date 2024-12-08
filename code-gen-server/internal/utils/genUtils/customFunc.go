@@ -26,5 +26,16 @@ var (
 			}
 			return false
 		},
+		"isJsNumberType": func(str string) bool {
+			//判断类型是string还是number，因为vue里对于数值类型需要用v-model.number
+			if strings.Contains(str, "bigint") ||
+				strings.Contains(str, "int") ||
+				strings.Contains(str, "float") ||
+				strings.Contains(str, "double") ||
+				strings.Contains(str, "tinyint") {
+				return true
+			}
+			return false
+		},
 	}
 )

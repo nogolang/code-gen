@@ -12,6 +12,7 @@ type Table struct {
 	IdName                   string //当前表的id的名称和类型，id必须在第1个字段
 	IdType                   string
 	IdNameWithSmallCamel     string  //小驼峰形式的id名称
+	IdNameWithBigCamel       string  //大驼峰形式的id名称
 	TableNameWithBigCamel    string  //大驼峰表名
 	TableNameWithSmallCamel  string  //小驼峰表名
 	TableComment             string  //表的注解
@@ -26,7 +27,10 @@ type field struct {
 	FieldNameWithBigCamel   string //大驼峰字段名,UserInfo
 	FieldNameWithSmallCamel string //小驼峰字段名,userInfo
 	FieldType               string //字段类型
-	FieldComment            string //字段的注解
+
+	//原始数据库类型，去掉了后面的括号的，比如varchar(255)，变成varchar，方便判断
+	RawFieldType string
+	FieldComment string //字段的注解
 }
 
 func NewTable(dataBaseName string, dataBaseNamePrefix string, tableName string, db *gorm.DB) *Table {
@@ -87,10 +91,14 @@ func (receiver *Table) fillFields(mapping map[string]string) {
 		if cutIndex != -1 {
 			pureType := fieldTemp.FieldType[:cutIndex]
 
+			//赋值原始类型，外部则可以判断
+			fieldTemp.RawFieldType = pureType
+
 			//通过映射获取到映射类型
 			fieldTemp.FieldType = mapping[pureType]
 		} else {
 			//如果没有找到，那么直接通过映射获取到映射类型即可
+			fieldTemp.RawFieldType = fieldTemp.FieldType
 			fieldTemp.FieldType = mapping[fieldTemp.FieldType]
 		}
 
@@ -107,6 +115,7 @@ func (receiver *Table) fillFields(mapping map[string]string) {
 	//赋值id的类型和字符串，确保id在第1个字段
 	receiver.IdName = myFields[0].FieldName
 	receiver.IdNameWithSmallCamel = strutil.CamelCase(myFields[0].FieldName)
+	receiver.IdNameWithBigCamel = strutil.UpperFirst(strutil.CamelCase(myFields[0].FieldName))
 	receiver.IdType = myFields[0].FieldType
 
 	receiver.Fields = myFields

@@ -19,12 +19,15 @@ func NewGroupController(engine *gin.Engine, GroupService service.GroupSvc, Logge
 	ctl := &GroupController{GroupService: GroupService, Logger: Logger}
 	group := engine.Group("/group")
 	group.GET("/findById/:id", ctl.FindById())
+	group.POST("/findAllDir", ctl.FindAllDir())
+	group.POST("/findAllDirForUpdate", ctl.FindAllDirForUpdate())
 	group.GET("/deleteById/:id", ctl.DeleteById())
 	group.POST("/updateById/:id", ctl.UpdateById())
 	group.POST("/add", ctl.Add())
 	group.POST("/findAll", ctl.FindAll())
 	group.GET("/findAllNoPagination", ctl.FindAllNoPagination())
-	group.DELETE("/deleteFileGroupMiddle/:id", ctl.DeleteFileGroupMiddle())
+	group.DELETE("/deleteFileById/:id", ctl.DeleteFileById())
+	group.DELETE("/deleteAllInvalidFile/:id", ctl.DeleteAllInvalidFile())
 	return ctl
 }
 
@@ -141,7 +144,51 @@ func (receiver *GroupController) FindAllNoPagination() gin.HandlerFunc {
 	}
 }
 
-func (receiver *GroupController) DeleteFileGroupMiddle() gin.HandlerFunc {
+func (receiver *GroupController) FindAllDir() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		type Dir struct {
+			Path string `json:"path"`
+		}
+		var dir Dir
+		err := context.ShouldBind(&dir)
+		if err != nil {
+			context.Error(err)
+			return
+		}
+		data, err := receiver.GroupService.FindAllDir(dir.Path)
+		if err != nil {
+			context.Error(err)
+			return
+		}
+		context.JSON(http.StatusOK, commonRes.OK.WithData(data))
+		return
+	}
+}
+
+func (receiver *GroupController) FindAllDirForUpdate() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		type Dir struct {
+			//分组id
+			Id   int    `json:"id"`
+			Path string `json:"path"`
+		}
+		var dir Dir
+		err := context.ShouldBind(&dir)
+		if err != nil {
+			context.Error(err)
+			return
+		}
+		data, err := receiver.GroupService.FindAllDirForUpdate(dir.Path, dir.Id)
+		if err != nil {
+			context.Error(err)
+			return
+		}
+		context.JSON(http.StatusOK, commonRes.OK.WithData(data))
+		return
+	}
+}
+
+func (receiver *GroupController) DeleteFileById() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		//不管有没有id都提示删除成功，因为可能还没存到中间表
 		//如果id不为0，才去中间表找
@@ -152,12 +199,33 @@ func (receiver *GroupController) DeleteFileGroupMiddle() gin.HandlerFunc {
 			return
 		}
 
-		err = receiver.GroupService.DeleteFileGroupMiddle(id)
+		err = receiver.GroupService.DeleteFileById(id)
 		if err != nil {
 			context.Error(err)
 			return
 		}
 		context.JSON(http.StatusOK, commonRes.DeleteOK)
+		return
+	}
+}
+
+// 删除所有无效的model，也就是本地不存在对应的文件，但是只删除当前group的
+func (receiver *GroupController) DeleteAllInvalidFile() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		temp := context.Param("id")
+		id, err := strconv.Atoi(temp)
+		if err != nil || id == 0 {
+			context.JSON(http.StatusOK, commonRes.DeleteOK)
+			return
+		}
+		//传递groupID
+		err = receiver.GroupService.DeleteAllInvalidFile(id)
+		if err != nil {
+			context.Error(err)
+			return
+		}
+
+		context.JSON(http.StatusOK, commonRes.OK)
 		return
 	}
 }

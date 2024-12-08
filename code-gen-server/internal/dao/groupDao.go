@@ -22,7 +22,7 @@ func (d *GroupDao) Add(m *model.GroupModel) error {
 	return nil
 }
 
-func (d *GroupDao) FindAll(query *model.GroupModelQuery) ([]model.GroupModel, int64, error) {
+func (d *GroupDao) FindAll(query *model.GroupModelQuery) ([]*model.GroupModel, int64, error) {
 
 	conditionDb := d.Db
 	if query.QueryStr != "" {
@@ -33,7 +33,7 @@ func (d *GroupDao) FindAll(query *model.GroupModelQuery) ([]model.GroupModel, in
 	//获取所有内容
 	var total int64
 	conditionDb.Count(&total)
-	var files []model.GroupModel
+	var files []*model.GroupModel
 	tx := conditionDb.
 		Scopes(gormUtils.Pagination(query.Page, query.Size)).
 		Find(&files)

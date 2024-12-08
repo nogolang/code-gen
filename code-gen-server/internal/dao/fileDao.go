@@ -18,7 +18,7 @@ func (f *FileDao) FindById(id int) (*model.FileModel, error) {
 	var obj model.FileModel
 	tx := f.Db.Find(&obj, id)
 	if tx.Error != nil {
-		return nil, errors.Wrap(tx.Error, "文件配置查询出错")
+		return nil, errors.Wrap(tx.Error, "文件查询出错")
 	}
 	if tx.RowsAffected == 0 {
 		return nil, commonRes.FileDataNotFount
@@ -30,7 +30,7 @@ func (f *FileDao) UpdateById(id int, newModel *model.FileModel) error {
 	newModel.Id = id
 	tx := f.Db.Save(newModel)
 	if tx.Error != nil {
-		return errors.Wrap(tx.Error, "文件配置保存出错")
+		return errors.Wrap(tx.Error, "文件更新出错")
 	}
 	return nil
 }
@@ -38,7 +38,7 @@ func (f *FileDao) UpdateById(id int, newModel *model.FileModel) error {
 func (f *FileDao) DeleteById(id int) error {
 	tx := f.Db.Delete(&model.FileModel{}, id)
 	if tx.Error != nil {
-		return errors.Wrap(tx.Error, "文件配置删除出错")
+		return errors.Wrap(tx.Error, "文件删除出错")
 	}
 	return nil
 }
@@ -46,7 +46,7 @@ func (f *FileDao) DeleteById(id int) error {
 func (f *FileDao) Add(fileModel *model.FileModel) error {
 	tx := f.Db.Create(fileModel)
 	if tx.Error != nil {
-		return errors.Wrap(tx.Error, "文件配置保存出错")
+		return errors.Wrap(tx.Error, "文件保存出错")
 	}
 	return nil
 }
@@ -82,4 +82,46 @@ func (f *FileDao) FindAllNoPagination() ([]model.FileModel, error) {
 		return nil, errors.Wrap(tx.Error, "查询所有files出错")
 	}
 	return files, nil
+}
+
+func (f *FileDao) AddBatch(models []*model.FileModel) error {
+	tx := f.Db.CreateInBatches(models, 100)
+	if tx.Error != nil {
+		return errors.Wrap(tx.Error, "文件配置保存出错")
+	}
+	return nil
+}
+
+func (f *FileDao) FindAllByGroupId(id int) ([]*model.FileModel, error) {
+	var models []*model.FileModel
+	tx := f.Db.Where("group_id = ?", id).Find(&models)
+	if tx.Error != nil {
+		return nil, errors.Wrap(tx.Error, "根据groupId查询出错")
+	}
+	return models, nil
+}
+
+func (f *FileDao) DeleteAllByGroupId(id int) error {
+	tx := f.Db.Where("group_id = ?", id).Delete(&model.FileModel{})
+	if tx.Error != nil {
+		return errors.Wrap(tx.Error, "根据组删除files出错")
+	}
+	return nil
+}
+
+func (f *FileDao) FindPathByGroupId(file string, id int) bool {
+	var total int64
+	f.Db.Where("group_id = ?", id).Where("template_path = ?", file).Count(&total)
+	if total > 0 {
+		return true
+	}
+	return false
+}
+
+func (f *FileDao) DeleteAllInvalidFile(ids []int) error {
+	tx := f.Db.Delete(&model.FileModel{}, ids)
+	if tx.Error != nil {
+		return errors.Wrap(tx.Error, "删除无效文件出错")
+	}
+	return nil
 }

@@ -13,13 +13,12 @@ import (
 )
 
 type FileGenSvc struct {
-	Logger          *zap.Logger
-	Dao             *dao.FileGenDao
-	OrmDao          *dao.OrmDao
-	GroupDao        *dao.GroupDao
-	FileDao         *dao.FileDao
-	FileAndGroupDao *dao.FileAndGroupDao
-	MappingDao      *dao.MappingPathDao
+	Logger     *zap.Logger
+	Dao        *dao.FileGenDao
+	OrmDao     *dao.OrmDao
+	GroupDao   *dao.GroupDao
+	FileDao    *dao.FileDao
+	MappingDao *dao.MappingPathDao
 }
 
 func (receiver *FileGenSvc) Add(m *model.FileGenModelRequest) error {
@@ -85,14 +84,7 @@ func (receiver *FileGenSvc) FindAll(query *model.FileGenModelQuery) (*model.File
 		d.DatabaseName = dbModel.Describe + "/" + dbModel.DataBaseName
 		d.TableNamesArr = strings.Split(d.TableNames, ",")
 	}
-
-	//获取到组的describe
-	for _, d := range data {
-		//如果把组删除掉了，那么本表的groupID也应该置空
-		groupModel, _ := receiver.GroupDao.FindById(d.GroupId)
-		d.GroupDescribe = groupModel.Describe
-	}
-
+	
 	modelAll.Data = data
 	modelAll.Total = total
 	return &modelAll, nil
@@ -111,23 +103,20 @@ func (receiver *FileGenSvc) GenFiles(ids []int) error {
 		//把数据库的扁平化表转换为数组
 		tables := strings.Split(genFileModel.TableNames, ",")
 
-		//获取组ID获取到多个文件和组的对象
-		fileGroupsModels, _ := receiver.FileAndGroupDao.FindAllByGroupId(genFileModel.GroupId)
+		//通过组ID获取到多个文件和组的对象
+		allFiles, _ := receiver.FileDao.FindAllByGroupId(genFileModel.GroupId)
 
 		//根据组id获取组对象
 		groupModel, _ := receiver.GroupDao.FindById(genFileModel.GroupId)
 
 		//根据db去查询指定的数据库，以及要生成的表
-		for _, fileGroup := range fileGroupsModels {
-			//查询到文件对象
-			fileModel, _ := receiver.FileDao.FindById(fileGroup.FileId)
-
+		for _, fileModel := range allFiles {
 			//查询到mapping对象的内容
 			mappingModel, _ := receiver.MappingDao.FindById(fileModel.MappingId)
 
 			//最终生成目录，是组里的rootDir加上中间表的相对路径
 			//这个中间件表是组和模板文件的中间表
-			finalOutDir := groupModel.RootDir + fileGroup.OutDir
+			finalOutDir := groupModel.GenRootDir + fileModel.GenPath
 
 			gen := genCode.NewFileGen(
 				genUtils.CustomFunc,
@@ -140,6 +129,7 @@ func (receiver *FileGenSvc) GenFiles(ids []int) error {
 				fileModel.NameSuffix,
 				fileModel.FileSuffix,
 				finalOutDir,
+				groupModel.GenRootDir,
 				fileModel.IsCamelCase,
 			)
 

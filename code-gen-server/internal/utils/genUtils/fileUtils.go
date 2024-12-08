@@ -37,3 +37,27 @@ func WindowsPathToLinux(path string) string {
 	replace := strings.Replace(path, "\\", "/", -1)
 	return replace
 }
+
+func RecursionFiles(path string) ([]string, error) {
+	var out []string
+	file, err := os.OpenFile(path, os.O_RDONLY, 0666)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, errors.WithMessage(err, "文件不存在")
+	}
+	stat, _ := file.Stat()
+	if stat.IsDir() {
+		//是文件夹，递归
+		files, err := file.ReadDir(0)
+		if err != nil {
+			return nil, err
+		}
+		for _, f := range files {
+			tempOut, _ := RecursionFiles(path + "/" + f.Name())
+			out = append(out, tempOut...)
+		}
+	} else {
+		out = append(out, path)
+	}
+
+	return out, nil
+}

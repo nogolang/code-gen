@@ -22,11 +22,6 @@ const router = createRouter({
 							component: () => import('@/views/fileGen/mappingManger.vue')
 						},
 						{
-							path: '/fileGen/fileManager',
-							name: 'productInfo',
-							component: () => import('@/views/fileGen/fileManager.vue')
-						},
-						{
 							path: '/fileGen/fileGroup',
 							name: 'fileGroup',
 							component: () => import('@/views/fileGen/groupManager.vue')

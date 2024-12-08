@@ -10,21 +10,12 @@ type FileModesAll struct {
 	Total int          `json:"total"`
 }
 
-type OutDirModel struct {
-	Id          int    `json:"id" gorm:"primaryKey;autoIncrement;"`
-	OutDir      string `json:"outDir" gorm:"column:out_dir"`
-	IsExist     bool   `json:"isExist" gorm:"column:is_exist"`
-	FileModelId int    `json:"fileModelId" gorm:"column:fileModel_id"`
-}
-
 type FileModelAllRequest struct {
 	FileModelAll []FileModel `json:"fileModelAll"`
 }
 
 type FileModel struct {
 	Id int `json:"id" gorm:"primaryKey;autoIncrement;"`
-	//描述
-	Describe string `json:"describe" gorm:"column:describe;"`
 
 	//名称的后缀，比如叫_controller
 	NameSuffix string `json:"nameSuffix" gorm:"column:name_suffix"`
@@ -40,4 +31,6 @@ type FileModel struct {
 
 	TemplatePath        string `json:"templatePath" gorm:"column:template_path"`
 	TemplatePathIsExist bool   `json:"templatePathIsExist" gorm:"column:template_path_isExist;default:1"`
+	GroupId             int    `json:"groupId" gorm:"column:group_id"`
+	GenPath             string `json:"genPath" gorm:"column:gen_path"`
 }

@@ -50,11 +50,10 @@ func NewGormConfig(zapLog *zap.Logger) *gorm.DB {
 
 	//迁移所有的表
 	migrator := db.Migrator()
-	err = migrator.AutoMigrate(&model.OutDirModel{},
+	err = migrator.AutoMigrate(
 		&model.MappingPathModel{},
 		&model.FileModel{},
 		&model.GroupModel{},
-		&model.FileAndGroupModel{},
 		&model.OrmModel{},
 		&model.FileGenModel{},
 	)

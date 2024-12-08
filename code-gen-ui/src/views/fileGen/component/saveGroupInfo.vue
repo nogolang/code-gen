@@ -2,27 +2,24 @@
 import {ref,watch,nextTick} from "vue";
 import {Check, Delete, WarningFilled} from "@element-plus/icons-vue";
 import * as groupApi from "@/api/groupApi.js"
-import * as fileApi from "@/api/fileApi.js"
-
 import {ElMessage} from "element-plus";
-import DatabaseSelect from "@/views/fileGen/component/databaseSelect.vue";
-import DatabaseTableSelect from "@/views/fileGen/component/databaseTableSelect.vue";
-import MappingSelect from "@/views/fileGen/component/mappingSelect.vue";
-import FileSelect from "@/views/fileGen/component/fileSelect.vue";
 import FileStatus from "@/views/fileGen/component/fileStatus.vue";
-import {DeleteFileGroupMiddle} from "@/api/groupApi.js";
+import {DeleteFileById} from "@/api/groupApi.js";
+import FileCamelStatus from "@/views/fileGen/component/fileCamelStatus.vue";
+import * as mappingApi from "@/api/mappingApi.js";
 
 const saveDialog= ref(false)
 const isUpdate= ref(false)
 const Id=ref(0)
 const emit=defineEmits(['afterSave'])
-
+const mappingOptions= ref([])
 
 const form = ref({
   //对这次操作的描述
   describe:"",
-  rootDir:"",
-  fileAndGroups:[],
+  genRootDir:"",
+  searchRootDir:"",
+  fileModels:[],
 })
 
 
@@ -40,22 +37,46 @@ const open = (id)=>{
       fileAndGroups:[],
     }
   }
+
+  //打开组的时候查询所有的mapping
+  findAllMapping()
 }
 
+const findAllMapping=async ()=>{
+   let res=await mappingApi.FindAllNoPagination()
+  mappingOptions.value=res.data
+}
 
 const findById=async (id)=>{
   let res=await groupApi.FindById(id)
   form.value=res.data
 }
+const FindAllDir=async ()=>{
+  let tempForm={
+    path:form.value.searchRootDir
+  }
+  let res=await groupApi.FindAllDir(tempForm)
+  form.value.fileModels=res.data
+}
+
+const FindAllDirForUpdate=async ()=>{
+  let tempForm={
+    id:Id.value,
+    path:form.value.searchRootDir
+  }
+  let res=await groupApi.FindAllDirForUpdate(tempForm)
+  form.value.fileModels=res.data
+}
+
 
 const addForm=async ()=>{
   //新增，向后台添加这个form
   //但是有些内容得要处理，比如数据库名称
-  let res=await groupApi.Add(form.value)
-  ElMessage.success(res.message)
+  await groupApi.Add(form.value)
+  ElMessage.success("新增成功")
 
   form.value={
-    fileAndGroups:[],
+    fileModels:[],
   }
   saveDialog.value=false
 
@@ -64,10 +85,10 @@ const addForm=async ()=>{
 }
 
 const updateForm=async ()=>{
-  let res=await groupApi.UpdateById(Id.value,form.value)
-  ElMessage.success(res.message)
+  await groupApi.UpdateById(Id.value,form.value)
+  ElMessage.success("更新成功")
   form.value={
-    fileAndGroups:[],
+    fileModels:[],
   }
   saveDialog.value=false
   emit('afterSave')
@@ -79,54 +100,51 @@ const cancel=()=>{
 
 const clear=()=>{
   form.value={
-    fileAndGroups:[],
+    fileModels:[],
   }
 }
 
-const fileSelectValue=ref("")
-const confirmAddFile=async ()=>{
-  //填充fileAndGroup
-  //但是groupId是在后台添加完group之后才填充的
-  //并非现在填充
-  let fileAndGroup={
-    fileId:0,
-    outDir:"",
-    groupId:Id.value,
+//const fileSelectValue=ref("")
+//const confirmAddFile=async ()=>{
+//  //填充fileAndGroup
+//  //但是groupId是在后台添加完group之后才填充的
+//  //并非现在填充
+//  let fileAndGroup={
+//    fileId:0,
+//    outDir:"",
+//    groupId:Id.value,
+//
+//    //templateName不是数据库字段，仅仅是展示的
+//    templateName:"",
+//    fileInfo:{
+//      templatePathIsExist:false
+//    }
+//
+//  }
+//  if (fileSelectValue.value!==0&& fileSelectValue.value!==""){
+//    //根据fileId查询file信息
+//    let res=await fileApi.FindById(fileSelectValue.value)
+//    //只保留文件名称
+//    let endIndex = res.data.templatePath.lastIndexOf('/');
+//    fileAndGroup.templateName=res.data.templatePath.substring(endIndex+1)
+//    fileAndGroup.fileInfo.templatePathIsExist=res.data.templatePathIsExist
+//
+//    //赋值id
+//    fileAndGroup.fileId=res.data.id
+//
+//    //给fileAndGroups新增了对象之后
+//    //我们下面的collapse才能填充
+//    form.value.fileAndGroups.push(fileAndGroup)
+//  }
+//}
 
-    //templateName不是数据库字段，仅仅是展示的
-    templateName:"",
-    fileInfo:{
-      templatePathIsExist:false
-    }
 
-  }
-  if (fileSelectValue.value!==0&& fileSelectValue.value!==""){
-    //根据fileId查询file信息
-    let res=await fileApi.FindById(fileSelectValue.value)
-    //只保留文件名称
-    let endIndex = res.data.templatePath.lastIndexOf('/');
-    fileAndGroup.templateName=res.data.templatePath.substring(endIndex+1)
-    fileAndGroup.fileInfo.templatePathIsExist=res.data.templatePathIsExist
-
-    //赋值id
-    fileAndGroup.fileId=res.data.id
-
-    //给fileAndGroups新增了对象之后
-    //我们下面的collapse才能填充
-    form.value.fileAndGroups.push(fileAndGroup)
-  }
-
+const deleteFileById=async (item)=>{
+  //同时在数组里删除选中的元素
+  form.value.fileModels.splice(form.value.fileModels.indexOf(item),1)
+  await DeleteFileById(item.id)
+  ElMessage.success("删除成功")
 }
-
-
-//在数组里删除选中的元素
-//item是一个对象
-const deleteFileGroupMiddle=async (item)=>{
-  form.value.fileAndGroups.splice(form.value.fileAndGroups.indexOf(item),1)
-  let res=await DeleteFileGroupMiddle(item.id)
-  ElMessage.success(res.message)
-}
-
 
 
 defineExpose({
@@ -146,25 +164,29 @@ defineExpose({
                     clearable>
           </el-input>
         </el-form-item>
-        <el-form-item label="选择模板文件">
-          <file-select v-model="fileSelectValue"></file-select>
-          <el-button style="margin-top: 5px"
+        <el-form-item label="选择要搜索的根目录">
+          <el-input v-model="form.searchRootDir"
+                    clearable>
+          </el-input>
+          <el-button v-if="!isUpdate" style="margin-top: 5px"
                      type="danger"
-                     @click="confirmAddFile">确定添加</el-button>
+                     @click="FindAllDir">确定搜索</el-button>
+          <el-button v-else style="margin-top: 5px"
+                     type="danger"
+                     @click="FindAllDirForUpdate">重新搜索</el-button>
         </el-form-item>
             <el-collapse>
               <el-collapse-item
-                                v-for="item in form.fileAndGroups"
+                                v-for="item in form.fileModels"
                                 :key="item">
                 <template #title style="position: relative">
-                  <div>{{item.templateName}}</div>
+                  <div>{{item.templatePath}}</div>
                   <!--后面加上删除图片-->
                   <el-icon :size="20" style="position: absolute;right: 80px">
-                    <Delete @click="deleteFileGroupMiddle(item)"/>
+                    <Delete @click="deleteFileById(item)"/>
                   </el-icon>
 
-                  <file-status style="margin-left: 20px" :status="item.fileInfo.templatePathIsExist"></file-status>
-
+                  <file-status style="margin-left: 20px" :status="item.templatePathIsExist"></file-status>
                 </template>
 
                 <!--自定义的图标不显示出来，不然最右侧有一个箭头图标-->
@@ -175,7 +197,37 @@ defineExpose({
                 </template>
 
                 <el-form-item label="要生成到的目录">
-                  <el-input v-model="item.outDir" placeholder="相对于根目录,比如/go/model"></el-input>
+                  <el-input v-model="item.genPath" placeholder="相对于根目录,比如/go/model"></el-input>
+                </el-form-item>
+                <el-form-item label="名称后缀" >
+                  <el-input clearable style="width: 150px"
+                            placeholder="比如_controller"
+                            v-model="item.nameSuffix"></el-input>
+                </el-form-item>
+                <el-form-item label="文件后缀">
+                  <el-input clearable style="width: 150px"
+                            placeholder="比如.go"
+                            v-model="item.fileSuffix"></el-input>
+                </el-form-item>
+                <el-form-item label="mapping">
+                  <mapping-select :options="mappingOptions"
+                                  v-model="item.mappingId"></mapping-select>
+                </el-form-item>
+                <el-form-item label="是否驼峰:">
+                  <template #label>
+                    <div class="myLabel">
+                      是否驼峰
+                      <el-tooltip
+                          effect="dark"
+                          content="原表名user_info,小驼峰userInfo,大驼峰UserInfo"
+                      >
+                        <el-icon>
+                          <WarningFilled/>
+                        </el-icon>
+                      </el-tooltip>
+                    </div>
+                  </template>
+                  <file-camel-status v-model.number="item.isCamelCase"></file-camel-status>
                 </el-form-item>
               </el-collapse-item>
             </el-collapse>

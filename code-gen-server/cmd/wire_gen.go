@@ -20,34 +20,19 @@ func WireApp() *conf.HttpServer {
 	logger := conf.NewZapConfig()
 	engine := conf.NewGin(logger)
 	db := conf.NewGormConfig(logger)
-	fileDao := &dao.FileDao{
+	groupDao := &dao.GroupDao{
 		Logger: logger,
 		Db:     db,
 	}
-	outDir := &dao.OutDir{
-		Db:     db,
+	fileDao := &dao.FileDao{
 		Logger: logger,
+		Db:     db,
 	}
 	mappingPathDao := &dao.MappingPathDao{
 		Db:     db,
 		Logger: logger,
 	}
-	fileService := service.FileService{
-		Logger:     logger,
-		Dao:        fileDao,
-		OutDirDao:  outDir,
-		MappingDao: mappingPathDao,
-	}
-	fileController := controller.NewFileController(engine, fileService, logger)
-	groupDao := &dao.GroupDao{
-		Logger: logger,
-		Db:     db,
-	}
 	ormDao := &dao.OrmDao{
-		Logger: logger,
-		Db:     db,
-	}
-	fileAndGroupDao := &dao.FileAndGroupDao{
 		Logger: logger,
 		Db:     db,
 	}
@@ -56,14 +41,12 @@ func WireApp() *conf.HttpServer {
 		Logger: logger,
 	}
 	groupSvc := service.GroupSvc{
-		Logger:          logger,
-		Dao:             groupDao,
-		FileDao:         fileDao,
-		OutDirDao:       outDir,
-		MappingDao:      mappingPathDao,
-		OrmDao:          ormDao,
-		FileAndGroupDao: fileAndGroupDao,
-		FileGenDao:      fileGenDao,
+		Logger:     logger,
+		Dao:        groupDao,
+		FileDao:    fileDao,
+		MappingDao: mappingPathDao,
+		OrmDao:     ormDao,
+		FileGenDao: fileGenDao,
 	}
 	groupController := controller.NewGroupController(engine, groupSvc, logger)
 	ormSvc := service.OrmSvc{
@@ -73,26 +56,23 @@ func WireApp() *conf.HttpServer {
 	}
 	ormController := controller.NewOrmController(engine, ormSvc, logger)
 	mappingSvc := service.MappingSvc{
-		Logger:    logger,
-		Dao:       mappingPathDao,
-		FileDao:   fileDao,
-		OutDirDao: outDir,
+		Logger:  logger,
+		Dao:     mappingPathDao,
+		FileDao: fileDao,
 	}
 	mappingController := controller.NewMappingController(engine, mappingSvc, logger)
 	fileGenSvc := service.FileGenSvc{
-		Logger:          logger,
-		Dao:             fileGenDao,
-		OrmDao:          ormDao,
-		GroupDao:        groupDao,
-		FileDao:         fileDao,
-		FileAndGroupDao: fileAndGroupDao,
-		MappingDao:      mappingPathDao,
+		Logger:     logger,
+		Dao:        fileGenDao,
+		OrmDao:     ormDao,
+		GroupDao:   groupDao,
+		FileDao:    fileDao,
+		MappingDao: mappingPathDao,
 	}
 	fileGenController := controller.NewFileGenController(engine, fileGenSvc, logger)
 	httpServer := &conf.HttpServer{
 		Logger:         logger,
 		Engine:         engine,
-		FileControl:    fileController,
 		GroupControl:   groupController,
 		OrmControl:     ormController,
 		MappingControl: mappingController,

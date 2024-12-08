@@ -4,14 +4,19 @@ import * as mappingApi from "@/api/mappingApi.js"
 
 //快捷双向绑定
 let models = defineModel("modelValue");
+let props=defineProps({
+  options:{
+    type:Array,
+  }
+})
 
-const options=ref([])
-
-const findAll=async ()=>{
-   let res=await mappingApi.FindAllNoPagination()
-   options.value=res.data
-}
-findAll()
+//因为后续每个文件都需要，会导致查询多次
+//我们只需要在打开组的时候去查询，然后把数据放进来即可
+//const options=ref([])
+//const findAll=async ()=>{
+//   let res=await mappingApi.FindAllNoPagination()
+//   options.value=res.data
+//}
 
 const emit=defineEmits(['afterSelect'])
 const handlerSelect=()=>{
@@ -33,7 +38,7 @@ const handlerSelect=()=>{
      placeholder="请选择内容"
      clearable
  >
-   <el-option v-for="item in options"
+   <el-option v-for="item in props.options"
               :key="item.id"
               :label="item.describe"
               :value="item.id">

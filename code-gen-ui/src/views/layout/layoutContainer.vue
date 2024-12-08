@@ -12,7 +12,7 @@ let menuList = [
     title: '文件管理', icon: "Lock", path: "/fileGen", children: [
       {title: '数据库配置', icon: "Lock", path: '/fileGen/database'},
       {title: 'mapping配置', icon: "Lock", path: '/fileGen/mapping'},
-      {title: '文件模板配置', icon: "Lock", path: '/fileGen/fileManager'},
+      //{title: '文件模板配置', icon: "Lock", path: '/fileGen/fileManager'},
       {title: '组配置', icon: "Lock", path: '/fileGen/fileGroup'},
       {title: '文件生成', icon: "Lock", path: '/fileGen/fileGen'},
     ]

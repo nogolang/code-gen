@@ -22,7 +22,7 @@ type HttpServer struct {
 
 	//我们写了什么controller,需要在这里进行加入
 	//并且编写对应的provider
-	FileControl    *controller.FileController
+	//FileControl    *controller.FileController
 	GroupControl   *controller.GroupController
 	OrmControl     *controller.OrmController
 	MappingControl *controller.MappingController
