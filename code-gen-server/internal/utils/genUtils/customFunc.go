@@ -37,5 +37,10 @@ var (
 			}
 			return false
 		},
+		//添加大括号，比如在proto里要生成/{id}，那么模板里就是{{{idName}}}
+		//但这会语法错误，所以需要我们用函数添加大括号
+		"addBrace": func(str string) string {
+			return "{" + str + "}"
+		},
 	}
 )
