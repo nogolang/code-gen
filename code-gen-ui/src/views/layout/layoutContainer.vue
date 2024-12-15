@@ -14,7 +14,7 @@ let menuList = [
       {title: 'mapping配置', icon: "Lock", path: '/fileGen/mapping'},
       //{title: '文件模板配置', icon: "Lock", path: '/fileGen/fileManager'},
       {title: '组配置', icon: "Lock", path: '/fileGen/fileGroup'},
-      {title: '文件生成', icon: "Lock", path: '/fileGen/fileGen'},
+      {title: '文件生成', icon: "Lock", path: '/fileGen/genFile'},
     ]
   },
 ]

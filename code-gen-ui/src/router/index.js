@@ -27,8 +27,8 @@ const router = createRouter({
 							component: () => import('@/views/fileGen/groupManager.vue')
 						},
 						{
-							path: '/fileGen/fileGen',
-							name: 'fileGen',
+							path: '/fileGen/genFile',
+							name: 'genFile',
 							component: () => import('@/views/fileGen/fileGenManger.vue')
 						},
 

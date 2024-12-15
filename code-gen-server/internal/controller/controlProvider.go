@@ -16,9 +16,7 @@ var ProviderSet = wire.NewSet(
 )
 
 // 静态文件服务
-var StaticProvider = wire.NewSet(
-	NewStaticController,
-)
+var StaticProvider = wire.NewSet()
 
 var GroupProvider = wire.NewSet(
 	NewGroupController,

@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -68,13 +69,34 @@ func NewGin(logger *zap.Logger) *gin.Engine {
 	engine.StaticFS("/assets", http.FS(assets))
 
 	//处理html，html需要设置Content-Type为text/html
-	//  实际上如果直接使用static是可以的，gin会自动添加Content-Type
+	// 实际上如果直接使用static是可以的，gin会自动添加Content-Type
 	//但是我们使用的是文件系统，需要从里面读取文件
 	engine.GET("/", func(c *gin.Context) {
 		data, _ := files.ReadFile("dist/index.html")
 		c.Header("Content-Type", "text/html")
 		c.Header("Accept", "text/html")
 		c.Data(http.StatusOK, "text/html", data)
+	})
+
+	//解决刷新404的问题
+	//NoRoute也就是如果访问的路由不存在，则用下面的路由处理
+	engine.NoRoute(func(c *gin.Context) {
+		//如果它是请求一个html页面，则直接返回index.html页面
+		//然后交给我们前端的路由去处理
+		accept := c.Request.Header.Get("Accept")
+		flag := strings.Contains(accept, "text/html")
+		if flag {
+			content, err := files.ReadFile("dist/index.html")
+			if err != nil {
+				c.Writer.WriteHeader(404)
+				c.Writer.WriteString("Not Found")
+				return
+			}
+			c.Writer.WriteHeader(200)
+			c.Writer.Header().Add("Accept", "text/html")
+			c.Writer.Write(content)
+			c.Writer.Flush()
+		}
 	})
 
 	//加载中间件

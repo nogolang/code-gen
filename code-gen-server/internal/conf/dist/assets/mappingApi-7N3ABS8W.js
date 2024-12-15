@@ -1,0 +1,1 @@
+import{I as t}from"./index-C2vceC4_.js";const p=n=>t.post("/mapping/findAll",n),e=()=>t.get("/mapping/findAllNoPagination"),i=n=>t.get("/mapping/findById/"+n),o=(n,a)=>t.post("/mapping/updateById/"+n,a),s=(n,a)=>t.get("/mapping/deleteById/"+n,a),r=n=>t.post("/mapping/add",n);export{r as A,s as D,i as F,o as U,p as a,e as b};
