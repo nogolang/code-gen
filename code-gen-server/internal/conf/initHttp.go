@@ -64,6 +64,11 @@ var files embed.FS
 func NewGin(logger *zap.Logger) *gin.Engine {
 	engine := gin.New()
 
+	/*//
+	如果我们启动另一个前端程序，那么这个已经存在的文件也没有影响
+	因为那是另一个端口的/请求
+	*/
+
 	//要对assets也放行，需要用sub获取到子目录
 	assets, _ := fs.Sub(files, "dist/assets")
 	engine.StaticFS("/assets", http.FS(assets))

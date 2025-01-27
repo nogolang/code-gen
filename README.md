@@ -578,3 +578,33 @@ type {{$table.TableNameWithBigCamel}} struct {
 
 
 
+
+
+## 大括号问题
+
+```bash
+#假设下面有一个restful请求，我们要用 {{IdName}}替换它
+/find/{attrId}
+
+#此时就变成了下面这样，此时就会有问题了，go template编译不通过
+/find/{{{IdName}}}
+
+#我们应该在自定义函数里添加以下函数，手动添加括号
+"addBrace": func(str string) string {
+    return "{" + str + "}"
+},
+
+#然后变成这样，那么最终就会生成/find/{attrId}
+/find/{{addBrace $table.IdName}}
+```
+
+
+
+
+
+
+
+
+
+
+

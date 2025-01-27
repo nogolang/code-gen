@@ -11,7 +11,6 @@ func init() {
 	flag.StringVar(&configPath, "conf", "configs/config.dev.yaml", "config path, eg: -conf configs/config.dev.yaml")
 }
 func main() {
-
 	//解析配置
 	flag.Parse()
 

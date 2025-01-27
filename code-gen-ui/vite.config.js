@@ -30,7 +30,7 @@ export default defineConfig({
   },
   server:{
     port:5077,
-    //动态代理,编译后就失效了，需要注意
+    //动态代理,编译后就失效了，需要注意，除非我们运行在node环境中
     //proxy:{
     //  '^/api':{
     //    //目标地址，这里应该填写网关地址，axios的baseUrl直接写一个/api就好了

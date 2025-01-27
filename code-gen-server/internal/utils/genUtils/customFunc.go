@@ -20,8 +20,27 @@ var (
 		"isGormDeleteAt": func(str string) bool {
 			//如果是deleteAt字段，那么类型变为gorm.DeletedAt
 			if strings.Contains(str, "DeletedAt") ||
+				strings.Contains(str, "DeleteAt") ||
 				strings.Contains(str, "deleted_at") ||
-				strings.Contains(str, "deleteAt") {
+				strings.Contains(str, "deletedAt") {
+				return true
+			}
+			return false
+		},
+		"isGormCreateAt": func(str string) bool {
+			if strings.Contains(str, "CreatedAt") ||
+				strings.Contains(str, "CreateAt") ||
+				strings.Contains(str, "created_at") ||
+				strings.Contains(str, "create_at") {
+				return true
+			}
+			return false
+		},
+		"isGormUpdateAt": func(str string) bool {
+			if strings.Contains(str, "UpdatedAt") ||
+				strings.Contains(str, "UpdateAt") ||
+				strings.Contains(str, "updated_at") ||
+				strings.Contains(str, "update_at") {
 				return true
 			}
 			return false
@@ -37,8 +56,9 @@ var (
 			}
 			return false
 		},
-		//添加大括号，比如在proto里要生成/{id}，那么模板里就是{{{idName}}}
+		//添加大括号，比如在proto里要生成/{id}，那么模板里就是{{{IdName}}}
 		//但这会语法错误，所以需要我们用函数添加大括号
+		//{{addBrace $table.IdName}}，这样最终就会变成 {id}
 		"addBrace": func(str string) string {
 			return "{" + str + "}"
 		},
