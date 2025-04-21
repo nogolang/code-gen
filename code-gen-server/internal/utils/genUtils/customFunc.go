@@ -62,5 +62,9 @@ var (
 		"addBrace": func(str string) string {
 			return "{" + str + "}"
 		},
+		//适配vue的大括号语法
+		"addBrace2": func(str string) string {
+			return "{{" + str + "}}"
+		},
 	}
 )

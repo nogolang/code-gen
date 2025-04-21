@@ -206,6 +206,8 @@ type Table struct {
 	TableComment             string  //表的注解
 	DataBaseName             string  //表所在的数据库名称
 	DataBaseNameWithNoPrefix string  //去除前缀的数据库名称
+    DataBaseNameWithNoPrefixSmallCamel string  //去除前缀的数据库名称,小驼峰
+    DataBaseNameWithNoPrefixBigCamel string  //去除前缀的数据库名称,大驼峰
 	Fields                   []field //表的字段
 }
 
@@ -593,9 +595,15 @@ type {{$table.TableNameWithBigCamel}} struct {
 "addBrace": func(str string) string {
     return "{" + str + "}"
 },
+"addBrace2": func(str string) string {
+    return "{{" + str + "}}"
+},
 
 #然后变成这样，那么最终就会生成/find/{attrId}
 /find/{{addBrace $table.IdName}}
+
+#如果是vue的，则可以这样写
+批量删除({{addBrace2 "Selection.length"}})
 ```
 
 
