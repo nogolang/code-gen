@@ -66,5 +66,11 @@ var (
 		"addBrace2": func(str string) string {
 			return "{{" + str + "}}"
 		},
+		"isInt64WithJsonTag": func(typeStr string, fieldName string) string {
+			if typeStr == "int64" {
+				return fieldName + ",string"
+			}
+			return fieldName
+		},
 	}
 )
